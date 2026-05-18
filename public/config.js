@@ -1,0 +1,1 @@
+window.GITFUSION_API_BASE = window.GITFUSION_API_BASE || "";

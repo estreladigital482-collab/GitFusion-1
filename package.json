@@ -1,0 +1,19 @@
+{
+  "name": "gitfusion",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js",
+    "clean": "node scripts/clean.js"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "fs-extra": "^11.2.0",
+    "nanoid": "^5.0.7"
+  },
+  "devDependencies": {}
+}

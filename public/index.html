@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+  <title>GitFusion</title>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <canvas id="voidGrid"></canvas>
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <div class="brand-mark">GF</div>
+      </div>
+      <div class="brand-copy">
+        <h1>GitFusion</h1>
+        <p>Merge repositories into one intelligent system.</p>
+      </div>
+      <button id="healthBtn" class="ghost-btn small">status</button>
+    </header>
+
+    <section class="hero-card">
+      <div class="kicker">REPOSITORY FUSION ENGINE</div>
+      <h2>Una projetos reais, analise estruturas e exporte um pacote novo.</h2>
+      <p>GitFusion baixa repositórios públicos do GitHub, detecta stacks, preserva uma base, importa os demais e gera um ZIP consolidado com relatório técnico.</p>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <span>01</span>
+        <h3>Repositórios</h3>
+      </div>
+      <label>Nome do projeto final</label>
+      <input id="projectName" value="gitfusion-lab" placeholder="nome-do-projeto" />
+
+      <label>Repositórios GitHub públicos</label>
+      <textarea id="reposInput" rows="5" placeholder="https://github.com/user/repo-a&#10;https://github.com/user/repo-b"></textarea>
+
+      <div class="action-row">
+        <button id="analyzeBtn" class="primary-btn">Analisar repositórios</button>
+        <button id="clearBtn" class="ghost-btn">Limpar</button>
+      </div>
+    </section>
+
+    <section class="grid-layout">
+      <article class="panel">
+        <div class="panel-head">
+          <span>02</span>
+          <h3>Mapa detectado</h3>
+        </div>
+        <div id="repoList" class="repo-list empty">Nenhum repositório analisado ainda.</div>
+      </article>
+
+      <article class="panel terminal-panel">
+        <div class="panel-head">
+          <span>03</span>
+          <h3>Engine logs</h3>
+        </div>
+        <pre id="logBox" class="log-box">[idle] aguardando repositórios...</pre>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <span>04</span>
+        <h3>Fusão e exportação</h3>
+      </div>
+      <label>Repositório base</label>
+      <select id="baseSelect" disabled>
+        <option>Analise os repositórios primeiro</option>
+      </select>
+      <div class="action-row">
+        <button id="fuseBtn" class="primary-btn" disabled>Fusionar projeto</button>
+        <a id="downloadLink" class="ghost-btn disabled" href="#">Baixar ZIP</a>
+      </div>
+      <div class="notice">
+        APK Android: este pacote inclui workflow real para gerar APK depois que você subir o projeto em um repo. O APK não é compilado no navegador, porque isso precisa de ambiente Android/Gradle.
+      </div>
+    </section>
+
+    <section class="panel small-text">
+      <div class="panel-head">
+        <span>05</span>
+        <h3>Mobile e Docker</h3>
+      </div>
+      <p>Rodar local: <code>npm install && npm start</code></p>
+      <p>Docker: <code>docker compose up --build</code></p>
+      <p>Termux: rode o servidor e abra <code>http://127.0.0.1:3737</code></p>
+    </section>
+  </main>
+
+  <script src="/config.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
