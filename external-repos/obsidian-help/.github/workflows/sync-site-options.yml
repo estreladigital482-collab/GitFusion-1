@@ -1,0 +1,55 @@
+name: Sync site options
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      OBSIDIAN_AUTH_TOKEN: ${{ secrets.OB_AUTH_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install ob CLI
+        run: npm install -g obsidian-headless
+
+      - name: Set up ob auth
+        run: |
+          node -e "
+            const os = require('os'), path = require('path'), fs = require('fs');
+            const dir = os.platform() === 'linux'
+              ? path.join(process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config'), 'obsidian-headless')
+              : path.join(os.homedir(), '.obsidian-headless');
+            fs.mkdirSync(dir, { recursive: true });
+            fs.writeFileSync(path.join(dir, 'auth_token'), process.env.OBSIDIAN_AUTH_TOKEN);
+          "
+
+      - name: Install script dependencies
+        run: npm install
+        working-directory: scripts
+
+      - name: Link publish sites
+        run: |
+          ob publish-list-sites | grep -E '^\s+[0-9a-f]{32}\s+"help' > /tmp/sites.txt
+          cat /tmp/sites.txt
+
+          while read -r siteId slug; do
+            slug="${slug//\"/}"
+            locale=$( [ "$slug" = "help" ] && echo "en" || echo "${slug#help-}" )
+            dir=$(find "$GITHUB_WORKSPACE" -maxdepth 1 -type d -iname "$locale" | head -1)
+            if [ -n "$dir" ]; then
+              echo "Linking $locale ($siteId) → $dir"
+              ob publish-setup --site "$siteId" --path "$dir"
+            else
+              echo "Skipping $slug — no $locale/ directory"
+            fi
+          done < /tmp/sites.txt
+
+      - name: Sync site options from EN
+        run: npx tsx scripts/sync-site-options.ts

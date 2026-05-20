@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@/*":            ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@hooks/*":      ["./src/hooks/*"],
+      "@stores/*":     ["./src/stores/*"],
+      "@styles/*":     ["./src/styles/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "src/areas/workflows/nodes/mesh-exporter",
+    "src/areas/workflows/nodes/mesh-optimizer"
+  ]
+}

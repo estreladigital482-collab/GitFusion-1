@@ -1,0 +1,109 @@
+{
+  "name": "modly",
+  "version": "0.3.6",
+  "description": "Local AI-powered 3D mesh generation from images",
+  "main": "./out/main/index.js",
+  "author": "Modly",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/build-builtins.mjs && electron-vite dev",
+    "build": "node scripts/build-builtins.mjs && electron-vite build",
+    "preview": "electron-vite preview",
+    "prepare-resources": "node scripts/download-python-embed.js",
+    "package": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false npm run build && npm run prepare-resources && electron-builder",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@electron-toolkit/utils": "^4.0.0",
+    "@react-three/drei": "^9.120.0",
+    "@react-three/fiber": "^8.17.10",
+    "@react-three/postprocessing": "^2.19.1",
+    "@xyflow/react": "^12.10.2",
+    "axios": "^1.7.9",
+    "electron-updater": "^6.8.3",
+    "esbuild": "^0.28.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tar": "^7.5.9",
+    "three": "^0.171.0",
+    "three-mesh-bvh": "^0.9.9",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "@types/react": "^18.3.17",
+    "@types/react-dom": "^18.3.5",
+    "@types/tar": "^7.0.87",
+    "@types/three": "^0.171.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "cross-env": "^10.1.0",
+    "electron": "^33.3.0",
+    "electron-builder": "^24.13.3",
+    "electron-vite": "^2.3.0",
+    "eslint": "^9.17.0",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.2",
+    "vite": "^5.4.0"
+  },
+  "build": {
+    "appId": "com.modly.app",
+    "productName": "Modly",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "out/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "api",
+        "to": "api",
+        "filter": [
+          "**/*",
+          "!.venv/**/*",
+          "!__pycache__/**/*"
+        ]
+      },
+      {
+        "from": "out/builtin-extensions",
+        "to": "builtin-extensions"
+      }
+    ],
+    "publish": {
+      "provider": "github",
+      "owner": "lightningpixel",
+      "repo": "modly"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "win": {
+      "target": "nsis",
+      "artifactName": "${productName}-Setup-${version}.${ext}",
+      "icon": "resources/icons/icon.ico",
+      "extraResources": [
+        {
+          "from": "resources/python-embed",
+          "to": "python-embed"
+        }
+      ]
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "resources/icons/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "resources/icons/icon.png",
+      "extraResources": [
+        {
+          "from": "resources/python-embed",
+          "to": "python-embed"
+        }
+      ]
+    }
+  }
+}

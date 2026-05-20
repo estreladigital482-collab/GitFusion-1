@@ -1,0 +1,504 @@
+#!/usr/bin/env tsx
+/**
+ * sync-locale.ts
+ * Usage: npx tsx scripts/sync-locale.ts <locale|--all> [--dry-run]
+ *
+ * Syncs a locale directory with en/ — same set of files, same frontmatter
+ * fields (except `aliases`), matched by `permalink`.
+ */
+
+import fs from "fs";
+import path from "path";
+import matter from "gray-matter";
+
+const ROOT = path.resolve(import.meta.dirname, "..");
+
+// Locales that use right-to-left text direction.
+// sync-locale appends scripts/rtl.css to publish.css for these locales.
+const RTL_LOCALES = new Set(["ar", "he", "fa", "ur"]);
+
+// Fields to always copy from EN (never locale-specific)
+const EN_FIELDS = ["permalink", "cssclasses", "publish", "mobile"];
+// Fields copied from EN into new stubs (but owned by locale once translated)
+const STUB_FIELDS = [...EN_FIELDS, "description"];
+
+// ─── filenames.txt ────────────────────────────────────────────────────────────
+
+interface FilenamesMap {
+  files: Record<string, string>;   // permalink → locale filename (no .md)
+  folders: Record<string, string>; // EN folder name → locale folder name
+}
+
+function loadFilenamesTxt(p: string): FilenamesMap {
+  const result: FilenamesMap = { files: {}, folders: {} };
+  if (!fs.existsSync(p)) return result;
+  let sectionType: "file" | "folder" | null = null;
+  let sectionKey = "";
+  for (const line of fs.readFileSync(p, "utf8").split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith(";")) continue;
+    if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+      const name = trimmed.slice(1, -1);
+      if (name.startsWith("file.")) { sectionType = "file"; sectionKey = name.slice(5); }
+      else if (name.startsWith("folder.")) { sectionType = "folder"; sectionKey = name.slice(7); }
+      else { sectionType = null; }
+      continue;
+    }
+    const eq = trimmed.indexOf("=");
+    if (eq === -1 || !sectionType) continue;
+    const k = trimmed.slice(0, eq);
+    const v = trimmed.slice(eq + 1);
+    if (k === "translation") {
+      if (sectionType === "file") result.files[sectionKey] = v;
+      else if (sectionType === "folder") result.folders[sectionKey] = v;
+    }
+  }
+  return result;
+}
+
+// Given an EN-relative path and permalink, return the locale-relative path
+// using translated folder and file names from filenames.txt.
+function resolveLocalePath(enRelPath: string, permalink: string, map: FilenamesMap): string {
+  const parts = enRelPath.split(path.sep);
+  const filename = parts.pop()!;
+  const enBasename = filename.slice(0, -3); // remove .md
+  const localeFolders = parts.map(seg => map.folders[seg] ?? seg);
+  const localeBasename = map.files[permalink] ?? enBasename;
+  return [...localeFolders, `${localeBasename}.md`].join(path.sep);
+}
+
+// ─── Shared types & helpers ──────────────────────────────────────────────────
+
+interface FileInfo {
+  absPath: string;
+  relPath: string;
+  frontmatter: Record<string, unknown>;
+  content: string;
+  raw: string;
+}
+
+function collectFiles(dir: string): Map<string, FileInfo> {
+  const map = new Map<string, FileInfo>();
+
+  function walk(current: string) {
+    const entries = fs.readdirSync(current, { withFileTypes: true });
+    for (const entry of entries) {
+      const full = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        walk(full);
+      } else if (entry.isFile() && entry.name.endsWith(".md")) {
+        const raw = fs.readFileSync(full, "utf8");
+        const parsed = matter(raw);
+        const permalink = parsed.data?.permalink as string | undefined;
+        if (!permalink) continue; // skip files without permalink
+        const relPath = path.relative(dir, full);
+        map.set(permalink, {
+          absPath: full,
+          relPath,
+          frontmatter: parsed.data as Record<string, unknown>,
+          content: parsed.content,
+          raw,
+        });
+      }
+    }
+  }
+
+  walk(dir);
+  return map;
+}
+
+function buildFrontmatter(
+  enFm: Record<string, unknown>,
+  localeFm: Record<string, unknown>
+): Record<string, unknown> {
+  const result: Record<string, unknown> = { ...localeFm };
+
+  // Apply EN fields
+  for (const field of EN_FIELDS) {
+    if (field in enFm) {
+      result[field] = enFm[field];
+    } else {
+      delete result[field];
+    }
+  }
+
+  // Preserve locale aliases, stripping any that came from EN frontmatter.
+  const enAliasSet = new Set((enFm.aliases as string[] | undefined) ?? []);
+  const localeAliases = (localeFm.aliases as string[] | undefined) ?? [];
+  const filteredAliases = localeAliases.filter(a => !enAliasSet.has(a));
+  if (filteredAliases.length > 0) {
+    result.aliases = filteredAliases;
+  } else {
+    delete result.aliases;
+  }
+
+  if ("localized" in localeFm) {
+    result.localized = localeFm.localized;
+  }
+
+  return result;
+}
+
+function frontmatterChanged(
+  a: Record<string, unknown>,
+  b: Record<string, unknown>
+): boolean {
+  return JSON.stringify(a) !== JSON.stringify(b);
+}
+
+function writeFile(filePath: string, fm: Record<string, unknown>, content: string) {
+  const newContent = matter.stringify(content, fm, { lineWidth: -1 } as any);
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, newContent, "utf8");
+}
+
+// ─── Main ────────────────────────────────────────────────────────────────────
+
+const args = process.argv.slice(2);
+const dryRun = args.includes("--dry-run");
+const allFlag = args.includes("--all");
+
+const enDir = path.join(ROOT, "en");
+if (!fs.existsSync(enDir)) {
+  console.error(`en/ directory not found at ${enDir}`);
+  process.exit(1);
+}
+
+// BCP 47 pattern: 2-3 letter language, optional region/script subtag
+const BCP47 = /^[a-z]{2,3}(-[A-Za-z]{2,4})?$/;
+
+let locales: string[];
+if (allFlag) {
+  locales = fs.readdirSync(ROOT, { withFileTypes: true })
+    .filter(e => e.isDirectory() && e.name !== "en" && BCP47.test(e.name))
+    .map(e => e.name)
+    .sort();
+} else {
+  const locale = args.find(a => !a.startsWith("--"));
+  if (!locale) {
+    console.error("Usage: npx tsx scripts/sync-locale.ts <locale|--all> [--dry-run]");
+    process.exit(1);
+  }
+  locales = [locale];
+}
+
+const enFiles = collectFiles(enDir);
+
+for (const loc of locales) {
+  const localeDir = path.join(ROOT, loc);
+  if (!fs.existsSync(localeDir)) {
+    console.error(`Locale directory not found: ${loc}/`);
+    continue;
+  }
+  syncLocale(loc, localeDir, enFiles);
+}
+
+// ─── Per-locale sync ─────────────────────────────────────────────────────────
+
+function syncLocale(locale: string, localeDir: string, enFiles: Map<string, FileInfo>) {
+
+console.log(`Syncing ${locale}/ with en/ (dry-run: ${dryRun})\n`);
+
+const filenamesTxtPath = path.join(localeDir, "filenames.txt");
+const filenamesMap = loadFilenamesTxt(filenamesTxtPath);
+if (Object.keys(filenamesMap.files).length > 0) {
+  console.log(`Loaded filenames.txt (${Object.keys(filenamesMap.files).length} files, ${Object.keys(filenamesMap.folders).length} folders)\n`);
+}
+
+const localeFiles = collectFiles(localeDir);
+
+let synced = 0;
+let created = 0;
+let unchanged = 0;
+let moved = 0;
+
+for (const [permalink, enInfo] of enFiles) {
+  const localeInfo = localeFiles.get(permalink);
+
+  if (localeInfo) {
+    // Check if the file should be moved to its correct locale path
+    const expectedRelPath = resolveLocalePath(enInfo.relPath, permalink, filenamesMap);
+    let oldFilenameAlias: string | null = null;
+    if (localeInfo.relPath !== expectedRelPath) {
+      const expectedAbsPath = path.join(localeDir, expectedRelPath);
+      oldFilenameAlias = path.basename(localeInfo.relPath, ".md");
+      console.log(`  MOVE    ${localeInfo.relPath} → ${expectedRelPath}`);
+      if (!dryRun) {
+        fs.mkdirSync(path.dirname(expectedAbsPath), { recursive: true });
+        fs.renameSync(localeInfo.absPath, expectedAbsPath);
+        localeInfo.absPath = expectedAbsPath;
+        localeInfo.relPath = expectedRelPath;
+      }
+      moved++;
+    }
+
+    // Sync frontmatter
+    const newFm = buildFrontmatter(enInfo.frontmatter, localeInfo.frontmatter);
+    // When a file is moved, add the old filename as an alias to avoid broken links
+    if (oldFilenameAlias) {
+      const existing = (newFm.aliases as string[] | undefined) ?? [];
+      if (!existing.includes(oldFilenameAlias)) {
+        newFm.aliases = [...existing, oldFilenameAlias];
+      }
+    }
+    // When permalink changes, preserve old permalink as alias so Publish redirects old URLs
+    const oldPermalink = localeInfo.frontmatter.permalink as string | undefined;
+    const newPermalink = newFm.permalink as string | undefined;
+    if (oldPermalink && newPermalink && oldPermalink !== newPermalink) {
+      const existing = (newFm.aliases as string[] | undefined) ?? [];
+      if (!existing.includes(oldPermalink)) {
+        newFm.aliases = [oldPermalink, ...existing];
+      }
+    }
+    // If localized is absent or false and content matches EN, mark as unlocalized (null = empty date)
+    const isUnlocalized = !localeInfo.frontmatter.localized;
+    if (isUnlocalized && localeInfo.content.trim() === enInfo.content.trim()) {
+      newFm.localized = null;
+    }
+    if (frontmatterChanged(localeInfo.frontmatter, newFm)) {
+      console.log(`  SYNC  ${localeInfo.relPath} (permalink: ${permalink})`);
+      if (!dryRun) {
+        writeFile(localeInfo.absPath, newFm, localeInfo.content);
+      }
+      synced++;
+    } else {
+      unchanged++;
+    }
+  } else {
+    // Create stub using locale filenames/folders if available, else fall back to EN path
+    const stubRelPath = resolveLocalePath(enInfo.relPath, permalink, filenamesMap);
+    const stubAbsPath = path.join(localeDir, stubRelPath);
+
+    // Build stub frontmatter: copy EN fields, mark as unlocalized
+    const stubFm: Record<string, unknown> = { localized: false };
+    for (const field of STUB_FIELDS) {
+      if (field in enInfo.frontmatter) {
+        stubFm[field] = enInfo.frontmatter[field];
+      }
+    }
+    console.log(`  CREATE  ${stubRelPath} (permalink: ${permalink})`);
+    if (!dryRun) {
+      writeFile(stubAbsPath, stubFm, enInfo.content);
+    }
+    created++;
+  }
+}
+
+// Delete any locale .md file whose permalink is missing or not in EN
+let deleted = 0;
+
+function collectAllMd(dir: string): string[] {
+  const results: string[] = [];
+  function walk(current: string) {
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      const full = path.join(current, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (entry.isFile() && entry.name.endsWith(".md")) results.push(full);
+    }
+  }
+  walk(dir);
+  return results;
+}
+
+// Build set of canonical locale paths (after any moves above)
+const canonicalPaths = new Set<string>();
+for (const [permalink, enInfo] of enFiles) {
+  canonicalPaths.add(path.join(localeDir, resolveLocalePath(enInfo.relPath, permalink, filenamesMap)));
+}
+
+for (const absPath of collectAllMd(localeDir)) {
+  const raw = fs.readFileSync(absPath, "utf8");
+  const parsed = matter(raw);
+  const permalink = parsed.data?.permalink as string | undefined;
+  const relPath = path.relative(localeDir, absPath);
+  let reason: string | null = null;
+  if (!permalink) {
+    reason = "no permalink";
+  } else if (!enFiles.has(permalink)) {
+    reason = `permalink not in en: ${permalink}`;
+  } else if (!canonicalPaths.has(absPath)) {
+    // The file has a valid EN permalink but isn't at the path filenames.txt expects.
+    // Don't delete — that risks nuking real translations when filenames.txt is updated
+    // (the move loop above should have handled real renames). Just warn so it can be inspected.
+    console.log(`  WARN    ${relPath} not at canonical path (permalink ${permalink}); leaving in place`);
+    continue;
+  }
+  if (reason) {
+    console.log(`  DELETE  ${relPath} (${reason})`);
+    if (!dryRun) fs.rmSync(absPath);
+    deleted++;
+  }
+}
+
+// ─── Root asset sync (publish.css, favicons, etc.) ───────────────────────────
+// Copy any non-markdown file at the en/ root to the locale root, overwriting if changed.
+// publish.js is excluded — it is generated by scripts/build-publish-js.ts.
+// publish.css is assembled: en/publish.css + scripts/rtl.css (RTL locales only)
+//   + any LOCALE-CUSTOM section preserved from the existing locale publish.css.
+
+const LOCALE_CUSTOM_SENTINEL = "/* LOCALE-CUSTOM */";
+
+for (const entry of fs.readdirSync(enDir, { withFileTypes: true })) {
+  if (!entry.isFile() || entry.name.endsWith(".md") || entry.name.startsWith(".")) continue;
+  if (entry.name === "publish.js" || entry.name === "site-options.json") continue;
+
+  const src = path.join(enDir, entry.name);
+  const dest = path.join(localeDir, entry.name);
+
+  if (entry.name === "publish.css") {
+    // Assemble: EN base + RTL block (if RTL locale) + preserved LOCALE-CUSTOM section
+    let assembled = fs.readFileSync(src, "utf8");
+
+    if (RTL_LOCALES.has(locale)) {
+      const rtlCss = fs.readFileSync(path.join(import.meta.dirname, "rtl.css"), "utf8");
+      assembled = assembled.trimEnd() + "\n\n" + rtlCss;
+    }
+
+    // Preserve any locale-specific section below the sentinel
+    const existing = fs.existsSync(dest) ? fs.readFileSync(dest, "utf8") : null;
+    if (existing) {
+      const sentinelIdx = existing.indexOf(LOCALE_CUSTOM_SENTINEL);
+      if (sentinelIdx !== -1) {
+        assembled = assembled.trimEnd() + "\n\n" + existing.slice(sentinelIdx);
+      }
+    }
+
+    const assembledBuf = Buffer.from(assembled, "utf8");
+    const destBuf = existing ? Buffer.from(existing, "utf8") : null;
+    if (!destBuf || !assembledBuf.equals(destBuf)) {
+      console.log(`  ASSET   ${entry.name}${existing ? " (updated)" : ""}`);
+      if (!dryRun) fs.writeFileSync(dest, assembled, "utf8");
+    }
+    continue;
+  }
+
+  const srcContent = fs.readFileSync(src);
+  const destContent = fs.existsSync(dest) ? fs.readFileSync(dest) : null;
+  if (!destContent || !srcContent.equals(destContent)) {
+    console.log(`  ASSET   ${entry.name}${destContent ? " (updated)" : ""}`);
+    if (!dryRun) fs.copyFileSync(src, dest);
+  }
+}
+
+// ─── Attachments sync ────────────────────────────────────────────────────────
+// Copy any attachment from en/Attachments/ that doesn't already exist in the
+// locale's Attachments/. Translators can replace files at the same path.
+
+const enAttachDir = path.join(enDir, "Attachments");
+const localeAttachDir = path.join(localeDir, "Attachments");
+let attachCopied = 0;
+let attachDeleted = 0;
+
+if (fs.existsSync(enAttachDir)) {
+  function syncAttachments(srcDir: string, destDir: string) {
+    for (const entry of fs.readdirSync(srcDir, { withFileTypes: true })) {
+      const srcPath = path.join(srcDir, entry.name);
+      const destPath = path.join(destDir, entry.name);
+      if (entry.isDirectory()) {
+        syncAttachments(srcPath, destPath);
+      } else if (entry.isFile() && !fs.existsSync(destPath)) {
+        const rel = path.relative(localeDir, destPath);
+        console.log(`  ATTACH  ${rel}`);
+        if (!dryRun) {
+          fs.mkdirSync(destDir, { recursive: true });
+          fs.copyFileSync(srcPath, destPath);
+        }
+        attachCopied++;
+      }
+    }
+  }
+  syncAttachments(enAttachDir, localeAttachDir);
+
+  // Prune locale attachments that no longer exist in en/Attachments/
+  function pruneAttachments(locDir: string, enDir: string) {
+    if (!fs.existsSync(locDir)) return;
+    for (const entry of fs.readdirSync(locDir, { withFileTypes: true })) {
+      const locPath = path.join(locDir, entry.name);
+      const enPath = path.join(enDir, entry.name);
+      if (entry.isDirectory()) {
+        pruneAttachments(locPath, enPath);
+        // Remove empty directories left after pruning
+        if (!dryRun && fs.existsSync(locPath) && fs.readdirSync(locPath).length === 0) {
+          fs.rmdirSync(locPath);
+        }
+      } else if (entry.isFile() && !fs.existsSync(enPath)) {
+        const rel = path.relative(localeDir, locPath);
+        console.log(`  ATTACH-DEL  ${rel}`);
+        if (!dryRun) fs.rmSync(locPath);
+        attachDeleted++;
+      }
+    }
+  }
+  pruneAttachments(localeAttachDir, enAttachDir);
+}
+
+// ─── Unknown folder detection ─────────────────────────────────────────────────
+// Warn about folders in the locale root that have no counterpart in en/ and
+// aren't locale-specific files (filenames.txt, headings.txt, etc.)
+
+const LOCALE_ONLY_FILES = new Set(["filenames.txt", "headings.txt"]);
+const enRootDirs = new Set(
+  fs.readdirSync(enDir, { withFileTypes: true })
+    .filter(e => e.isDirectory() && !e.name.startsWith("."))
+    .map(e => e.name)
+);
+// Also allow translated folder names (values from filenamesMap)
+const translatedFolderNames = new Set(Object.values(filenamesMap.folders));
+
+// Delete empty legacy dirs: any directory (at any depth) that is not a
+// canonical locale path and contains no .md files with a valid permalink.
+// This safely removes old locale-named folders left over after orphan deletion
+// without risking removal of folders that were just populated by a MOVE.
+let deletedDirs = 0;
+
+function hasMdWithPermalink(dir: string): boolean {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      if (hasMdWithPermalink(full)) return true;
+    } else if (entry.isFile() && entry.name.endsWith(".md")) {
+      const raw = fs.readFileSync(full, "utf8");
+      const parsed = matter(raw);
+      if (parsed.data?.permalink) return true;
+    }
+  }
+  return false;
+}
+
+// Collect all dirs that are not canonical and not protected, deepest first
+function collectLegacyDirs(dir: string, depth: number): string[] {
+  const results: string[] = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (!entry.isDirectory() || entry.name.startsWith(".")) continue;
+    const full = path.join(dir, entry.name);
+    const name = entry.name;
+    // At root level, skip known canonical dirs
+    if (depth === 0 && (enRootDirs.has(name) || translatedFolderNames.has(name))) continue;
+    // Recurse first (deepest dirs collected first for safe deletion)
+    results.push(...collectLegacyDirs(full, depth + 1));
+    results.push(full);
+  }
+  return results;
+}
+
+for (const dir of collectLegacyDirs(localeDir, 0)) {
+  if (hasMdWithPermalink(dir)) continue;
+  const rel = path.relative(localeDir, dir);
+  console.log(`  DELETE DIR  ${rel} (empty legacy folder)`);
+  if (!dryRun) fs.rmSync(dir, { recursive: true });
+  deletedDirs++;
+}
+
+console.log(`\n--- Summary ---`);
+console.log(`  Moved (to locale path):       ${moved}`);
+console.log(`  Synced (frontmatter updated): ${synced}`);
+console.log(`  Created (new stubs):          ${created}`);
+console.log(`  Unchanged:                    ${unchanged}`);
+console.log(`  Attachments copied:           ${attachCopied}`);
+console.log(`  Attachments deleted:          ${attachDeleted}`);
+console.log(`  Deleted (orphans):            ${deleted}`);
+console.log(`  Deleted (empty dirs):         ${deletedDirs}`);
+if (dryRun) {
+  console.log("\n[DRY RUN] No files were written.");
+}
+} // end syncLocale

@@ -1,0 +1,127 @@
+name: Apply EN diff to locales
+
+on:
+  workflow_dispatch:
+    inputs:
+      from_ref:
+        description: 'Git ref to diff from (e.g. HEAD~1, a commit SHA)'
+        required: true
+  push:
+    branches: [master]
+    paths:
+      - 'en/**'
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      locales: ${{ steps.get-locales.outputs.locales }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Discover locale directories
+        id: get-locales
+        run: |
+          locales=$(ls -d */ | sed 's|/||' | grep -E '^[a-z]{2,3}(-[A-Za-z]{2,4})?$' | grep -v '^en$' | jq -R -s -c '[split("\n") | .[] | select(length > 0)]')
+          echo "locales=$locales" >> $GITHUB_OUTPUT
+
+  apply-diff:
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    strategy:
+      matrix:
+        locale: ${{ fromJson(needs.setup.outputs.locales) }}
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install script dependencies
+        run: npm install
+        working-directory: scripts
+
+      - name: Clone obsidian-translations (glossary)
+        run: git clone --depth 1 https://github.com/obsidianmd/obsidian-translations.git ../obsidian-translations
+
+      - name: Translate filenames for new EN pages in ${{ matrix.locale }}
+        run: npx tsx scripts/translate-filenames.ts "${{ matrix.locale }}"
+
+      - name: Sync structure to ${{ matrix.locale }} (stubs for new EN pages, remove deleted)
+        run: npx tsx scripts/sync-locale.ts "${{ matrix.locale }}"
+
+      - name: Translate stubs and flagged files in ${{ matrix.locale }}
+        run: npx tsx scripts/translate-locale.ts "${{ matrix.locale }}"
+
+      - name: Apply diff to ${{ matrix.locale }}
+        run: |
+          FROM=${{ github.event.inputs.from_ref || github.event.before }}
+          echo "Diffing from: $FROM"
+          npx tsx scripts/apply-diff-locale.ts "${{ matrix.locale }}" --from "$FROM"
+
+      - name: Upload changes as patch
+        run: |
+          git add -A
+          git diff --staged --binary > /tmp/${{ matrix.locale }}.patch
+          echo "Patch size: $(wc -c < /tmp/${{ matrix.locale }}.patch) bytes"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: patch-${{ matrix.locale }}
+          path: /tmp/${{ matrix.locale }}.patch
+          if-no-files-found: ignore
+
+  commit:
+    needs: apply-diff
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install script dependencies
+        run: npm install
+        working-directory: scripts
+
+      - name: Download all patches
+        uses: actions/download-artifact@v4
+        with:
+          pattern: patch-*
+          path: /tmp/patches
+
+      - name: Apply patches
+        run: |
+          for patch in /tmp/patches/patch-*/*.patch; do
+            [ -s "$patch" ] || continue  # skip empty patches
+            echo "Applying $patch"
+            git apply "$patch"
+          done
+
+      - name: Rebuild locale publish.css and publish.js
+        run: |
+          npx tsx scripts/build-publish-css.ts
+          npx tsx scripts/build-publish-js.ts
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git diff --staged --quiet && git diff --quiet && echo "No changes to commit" && exit 0
+          git add .
+          git commit -m "chore: apply EN diff to locales"
+          git push

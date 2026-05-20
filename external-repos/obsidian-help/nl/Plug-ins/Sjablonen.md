@@ -1,0 +1,97 @@
+---
+permalink: plugins/templates
+cssclasses:
+  - soft-embed
+publish: true
+mobile: true
+description: Sjablonen is een kernplug-in waarmee je vooraf gedefinieerde tekstfragmenten in je actieve notitie kunt invoegen.
+---
+Sjablonen is een [[Ingebouwde plug-ins|kernplug-in]] waarmee je vooraf gedefinieerde tekst-snippets kunt invoegen in je actieve notitie.
+
+## Je sjabloonmap instellen
+
+1. Selecteer linksonder **[[Instellingen]]** ![[lucide-cog.svg#icon]].
+2. Voer onder **Ingebouwde plug-ins → Sjablonen → Sjabloonmaplocatie** de map in die je sjablonen bevat.
+
+## Sjabloonvariabelen
+
+Je kunt dynamische informatie toevoegen aan je sjablonen met behulp van _sjabloonvariabelen_. Wanneer je een sjabloon invoegt dat een sjabloonvariabele bevat, vervangt Sjablonen deze door de bijbehorende waarde.
+
+| Variabele   | Beschrijving                                                |
+|-------------|-------------------------------------------------------------|
+| `{{title}}` | Titel van de actieve notitie.                               |
+| `{{date}}`  | De datum van vandaag. **Standaardindeling:** `YYYY-MM-DD`.  |
+| `{{time}}`  | De huidige tijd. **Standaardindeling:** `HH:mm`.            |
+
+Zowel `{{date}}` als `{{time}}` stellen je in staat om de standaardindeling te wijzigen met een _indelingsreeks_.
+
+Om een indelingsreeks in te stellen, voeg je een dubbele punt (`:`) toe gevolgd door een reeks [Moment.js-indelingstokens](https://momentjs.com/docs/#/displaying/format/), bijvoorbeeld `{{date:YYYY-MM-DD}}`.
+
+Je kunt `{{date}}` en `{{time}}` op dezelfde manier gebruiken met indelingsreeksen, bijvoorbeeld `{{time:YYYY-MM-DD}}`.
+
+Je kunt de standaard datum- en tijdsindeling wijzigen onder **[[Instellingen]] → Ingebouwde plug-ins → Sjablonen → Datumindeling** en **[[Instellingen]] → Ingebouwde plug-ins → Sjablonen → Tijdsindeling**. ^template-settings-date-time-formatting
+
+> [!tip]- Datum- en tijdvariabelen gebruiken in andere plug-ins
+> Je kunt de sjabloonvariabelen `{{date}}` en `{{time}}` ook gebruiken in de plug-ins [[Dagnotities]] en [[Uniekenotitiesmaker]].
+
+## Een sjabloon aanmaken
+
+Maak in de [[#Je sjabloonmap instellen|sjabloonmap]] [[Notities beheren#Een nieuwe notitie aanmaken|een notitie aan]] met de tekst die je wilt laten verschijnen wanneer je het sjabloon gebruikt. Je kunt [[#Sjabloonvariabelen|sjabloonvariabelen]] gebruiken voor dynamische tekst zoals de huidige datum.
+
+Hier is bijvoorbeeld een sjabloon voor studienotities:
+
+```markdown
+---
+topic: 
+date: "{{date}}"
+course: 
+tags:
+  - studies
+---
+
+# {{title}}
+
+## Kernconcepten
+
+
+## Belangrijke details
+
+
+## Voorbeelden
+
+
+## Vragen
+- 
+
+## Samenvatting
+
+
+## Gerelateerde onderwerpen
+- [[]]
+```
+
+> [!warning]+ Bewerk sjablonen in bronmodus
+> In [[Weergaven en bewerkingsmodus#Live voorbeeld|Live voorbeeld]] kan het paneel **Eigenschappen in het document** sjabloonvariabelen overschrijven die geen aanhalingstekens hebben.
+>
+> Om dit te voorkomen, bewerk je sjablonen in [[Weergaven en bewerkingsmodus#Bronmodus|bronmodus]], of stel je **[[Instellingen]] → Editor → [[Instellingen#Eigenschappen in het document|Eigenschappen in het document]]** in op **Bron**.
+
+## Een sjabloon invoegen in de actieve notitie
+
+> [!todo] [[#Je sjabloonmap instellen]] voordat je een sjabloon invoegt.
+
+1. Selecteer in de werkbalk **Sjabloon invoegen**.
+2. Selecteer het sjabloon dat je wilt invoegen op de cursorpositie in de actieve notitie.
+
+Om een sjabloon in te voegen met het [[Opdrachtenpaneel]] of [[Sneltoetsen#Een sneltoets instellen|een aangepaste sneltoets]], gebruik je de opdracht `Sjablonen: Sjabloon invoegen`.
+
+De inhoud van het sjabloon wordt ingevoegd op je huidige cursorpositie. Als je cursor zich niet in de notitietekst bevindt, wordt de inhoud ingevoegd op je laatste cursorpositie.
+
+### Sjablooneigenschappen
+
+![[Eigenschappen#^templates-properties]]
+
+## Huidige datum en tijd invoegen in de actieve notitie
+
+Gebruik de opdrachten `Sjablonen: Voeg huidige datum in` en `Sjablonen: Voeg huidige tijd in` om de huidige datum en tijd in te voegen op je huidige cursorpositie. Net als de opdracht `Sjabloon invoegen` kun je dit ook doen met het opdrachtenpalet of een aangepaste sneltoets.
+
+De ingevoegde datum en tijd gebruiken de [[#^template-settings-date-time-formatting|indeling die is ingesteld in de plug-ininstellingen]].
