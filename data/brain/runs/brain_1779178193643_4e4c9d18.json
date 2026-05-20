@@ -1,0 +1,290 @@
+{
+  "id": "brain_1779178193643_4e4c9d18",
+  "createdAt": "2026-05-19T08:09:53.677Z",
+  "type": "autonomous-agent",
+  "signal": {
+    "id": "signal_1779178193644",
+    "prompt": "crie projeto selftest-agent e liste workspace",
+    "repos": [],
+    "attachments": [],
+    "workspaceId": "mobile",
+    "projectId": "general",
+    "chatId": "main",
+    "source": "autonomous-selftest",
+    "createdAt": "2026-05-19T08:09:53.643Z",
+    "raw": {
+      "prompt": "crie projeto selftest-agent e liste workspace",
+      "projectId": "general",
+      "execute": true,
+      "approved": true,
+      "maxCycles": 2,
+      "source": "autonomous-selftest"
+    }
+  },
+  "perception": {
+    "intent": "code_task",
+    "risk": "normal",
+    "complexity": "low",
+    "needsApproval": true,
+    "summary": "Criar/alterar código: crie projeto selftest-agent e liste workspace",
+    "signals": {
+      "repoCount": 0,
+      "hasAttachments": false,
+      "wantsCode": false,
+      "wantsMerge": false,
+      "wantsAndroid": false
+    }
+  },
+  "plan": [
+    {
+      "id": "receive",
+      "title": "Receber pedido",
+      "description": "Capturar prompt, anexos e estado do projeto.",
+      "estimateMinutes": 5,
+      "index": 1,
+      "status": "done"
+    },
+    {
+      "id": "perceive",
+      "title": "Entender intenção",
+      "description": "Classificar como code_task.",
+      "estimateMinutes": 8,
+      "index": 2,
+      "status": "done"
+    },
+    {
+      "id": "memory",
+      "title": "Buscar memória/RAG",
+      "description": "Consultar MemPalace, wiki, docs e decisões anteriores.",
+      "estimateMinutes": 12,
+      "index": 3,
+      "status": "done"
+    },
+    {
+      "id": "inspect_workspace",
+      "title": "Inspecionar workspace",
+      "description": "Localizar arquivos prováveis e dependências.",
+      "estimateMinutes": 14,
+      "index": 4,
+      "status": "pending"
+    },
+    {
+      "id": "design_patch",
+      "title": "Desenhar alteração",
+      "description": "Planejar arquivos, funções e UI afetadas.",
+      "estimateMinutes": 14,
+      "index": 5,
+      "status": "pending"
+    },
+    {
+      "id": "tasks",
+      "title": "Criar tasks de código",
+      "description": "Registrar passos antes de alterar.",
+      "estimateMinutes": 9,
+      "index": 6,
+      "status": "pending"
+    },
+    {
+      "id": "safe_execute",
+      "title": "Execução supervisionada",
+      "description": "Aplicar alteração quando houver autorização/ferramenta.",
+      "estimateMinutes": 22,
+      "index": 7,
+      "status": "pending"
+    },
+    {
+      "id": "reward",
+      "title": "Salvar aprendizado",
+      "description": "Registrar decisão, erro/sucesso e dataset futuro.",
+      "estimateMinutes": 6,
+      "index": 8,
+      "status": "pending"
+    }
+  ],
+  "estimateMinutes": 77,
+  "progress": 100,
+  "safety": {
+    "allowedToPlan": true,
+    "allowedToExecute": false,
+    "mode": "planned",
+    "warnings": [],
+    "approved": true
+  },
+  "root": "/mnt/data/gf15_5/workspaces/pessoal",
+  "cycles": [
+    {
+      "cycle": 1,
+      "scan": "1 arquivo(s), 2 pasta(s). Stack: não detectada. package.json: 0. Principais: .gitfusion-backups/brain_1779178193643_4e4c9d18/snapshot.json",
+      "actions": [
+        {
+          "type": "mkdir",
+          "title": "Criar pasta de controle do agente",
+          "path": ".gitfusion-agent"
+        },
+        {
+          "type": "write_file",
+          "title": "Salvar contexto analisado pelo agente",
+          "path": ".gitfusion-agent/context-1779178193653.md",
+          "content": "# Contexto do agente\n\nPedido: crie projeto selftest-agent e liste workspace\n\n1 arquivo(s), 2 pasta(s). Stack: não detectada. package.json: 0. Principais: .gitfusion-backups/brain_1779178193643_4e4c9d18/snapshot.json\n",
+          "overwrite": true
+        },
+        {
+          "type": "create_brain_report",
+          "title": "Salvar relatório real da execução",
+          "content": "# GitFusion Brain Run\n\n- Data: 2026-05-19T08:09:53.653Z\n- Intenção: code_task\n- Complexidade: low\n- Risco: normal\n- Segurança: planned\n- Modelo: gitfusion/deterministic-mobile-agent\n\n## Pedido\ncrie projeto selftest-agent e liste workspace\n\n## Etapas\n- [x] 1. Receber pedido (5min) - Capturar prompt, anexos e estado do projeto.\n- [x] 2. Entender intenção (8min) - Classificar como code_task.\n- [x] 3. Buscar memória/RAG (10min) - Consultar MemPalace, wiki, docs e decisões anteriores.\n- [ ] 4. Inspecionar workspace (14min) - Localizar arquivos prováveis e dependências.\n- [ ] 5. Desenhar alteração (14min) - Planejar arquivos, funções e UI afetadas.\n- [ ] 6. Criar tasks de código (9min) - Registrar passos antes de alterar.\n- [ ] 7. Execução supervisionada (22min) - Aplicar alteração quando houver autorização/ferramenta.\n- [ ] 8. Salvar aprendizado (6min) - Registrar decisão, erro/sucesso e dataset futuro.\n\n## Resposta\nCiclo 1: code_task. Workspace analisado: 1 arquivo(s), 2 pasta(s). Stack: não detectada. package.json: 0. Principais: .gitfusion-backups/brain_1779178193643_4e4c9d18/snapshot.json\n"
+        },
+        {
+          "type": "create_project_structure",
+          "title": "Criar estrutura real de projeto no workspace",
+          "path": "selftest-agent",
+          "files": [
+            {
+              "path": "README.md",
+              "content": "# selftest-agent\n\nCriado pelo GitFusion Brain em 2026-05-19T08:09:53.653Z.\n\n## Pedido original\ncrie projeto selftest-agent e liste workspace\n"
+            },
+            {
+              "path": "docs/brain-plan.md",
+              "content": "# GitFusion Brain Run\n\n- Data: 2026-05-19T08:09:53.653Z\n- Intenção: code_task\n- Complexidade: low\n- Risco: normal\n- Segurança: planned\n- Modelo: gitfusion/deterministic-mobile-agent\n\n## Pedido\ncrie projeto selftest-agent e liste workspace\n\n## Etapas\n- [x] 1. Receber pedido (5min) - Capturar prompt, anexos e estado do projeto.\n- [x] 2. Entender intenção (8min) - Classificar como code_task.\n- [x] 3. Buscar memória/RAG (10min) - Consultar MemPalace, wiki, docs e decisões anteriores.\n- [ ] 4. Inspecionar workspace (14min) - Localizar arquivos prováveis e dependências.\n- [ ] 5. Desenhar alteração (14min) - Planejar arquivos, funções e UI afetadas.\n- [ ] 6. Criar tasks de código (9min) - Registrar passos antes de alterar.\n- [ ] 7. Execução supervisionada (22min) - Aplicar alteração quando houver autorização/ferramenta.\n- [ ] 8. Salvar aprendizado (6min) - Registrar decisão, erro/sucesso e dataset futuro.\n\n## Resposta\nCiclo 1: code_task. Workspace analisado: 1 arquivo(s), 2 pasta(s). Stack: não detectada. package.json: 0. Principais: .gitfusion-backups/brain_1779178193643_4e4c9d18/snapshot.json\n"
+            },
+            {
+              "path": "src/.gitkeep",
+              "content": ""
+            }
+          ]
+        },
+        {
+          "type": "list_workspace",
+          "title": "Verificar workspace após ações",
+          "path": "."
+        }
+      ],
+      "execution": {
+        "root": "/mnt/data/gf15_5/workspaces/pessoal",
+        "count": 5,
+        "ok": true,
+        "results": [
+          {
+            "ok": true,
+            "action": {
+              "type": "mkdir",
+              "title": "Criar pasta de controle do agente",
+              "path": ".gitfusion-agent"
+            },
+            "result": {
+              "path": ".gitfusion-agent",
+              "created": true
+            },
+            "startedAt": "2026-05-19T08:09:53.655Z",
+            "finishedAt": "2026-05-19T08:09:53.656Z"
+          },
+          {
+            "ok": true,
+            "action": {
+              "type": "write_file",
+              "title": "Salvar contexto analisado pelo agente",
+              "path": ".gitfusion-agent/context-1779178193653.md",
+              "content": "# Contexto do agente\n\nPedido: crie projeto selftest-agent e liste workspace\n\n1 arquivo(s), 2 pasta(s). Stack: não detectada. package.json: 0. Principais: .gitfusion-backups/brain_1779178193643_4e4c9d18/snapshot.json\n",
+              "overwrite": true
+            },
+            "result": {
+              "path": ".gitfusion-agent/context-1779178193653.md",
+              "bytes": 217,
+              "written": true
+            },
+            "startedAt": "2026-05-19T08:09:53.656Z",
+            "finishedAt": "2026-05-19T08:09:53.658Z"
+          },
+          {
+            "ok": true,
+            "action": {
+              "type": "create_brain_report",
+              "title": "Salvar relatório real da execução",
+              "content": "# GitFusion Brain Run\n\n- Data: 2026-05-19T08:09:53.653Z\n- Intenção: code_task\n- Complexidade: low\n- Risco: normal\n- Segurança: planned\n- Modelo: gitfusion/deterministic-mobile-agent\n\n## Pedido\ncrie projeto selftest-agent e liste workspace\n\n## Etapas\n- [x] 1. Receber pedido (5min) - Capturar prompt, anexos e estado do projeto.\n- [x] 2. Entender intenção (8min) - Classificar como code_task.\n- [x] 3. Buscar memória/RAG (10min) - Consultar MemPalace, wiki, docs e decisões anteriores.\n- [ ] 4. Inspecionar workspace (14min) - Localizar arquivos prováveis e dependências.\n- [ ] 5. Desenhar alteração (14min) - Planejar arquivos, funções e UI afetadas.\n- [ ] 6. Criar tasks de código (9min) - Registrar passos antes de alterar.\n- [ ] 7. Execução supervisionada (22min) - Aplicar alteração quando houver autorização/ferramenta.\n- [ ] 8. Salvar aprendizado (6min) - Registrar decisão, erro/sucesso e dataset futuro.\n\n## Resposta\nCiclo 1: code_task. Workspace analisado: 1 arquivo(s), 2 pasta(s). Stack: não detectada. package.json: 0. Principais: .gitfusion-backups/brain_1779178193643_4e4c9d18/snapshot.json\n",
+              "path": ""
+            },
+            "result": {
+              "path": "brain-runs/brain_1779178193643_4e4c9d18.md",
+              "bytes": 1127,
+              "written": true
+            },
+            "startedAt": "2026-05-19T08:09:53.658Z",
+            "finishedAt": "2026-05-19T08:09:53.660Z"
+          },
+          {
+            "ok": true,
+            "action": {
+              "type": "create_project_structure",
+              "title": "Criar estrutura real de projeto no workspace",
+              "path": "selftest-agent",
+              "files": [
+                {
+                  "path": "README.md",
+                  "content": "# selftest-agent\n\nCriado pelo GitFusion Brain em 2026-05-19T08:09:53.653Z.\n\n## Pedido original\ncrie projeto selftest-agent e liste workspace\n"
+                },
+                {
+                  "path": "docs/brain-plan.md",
+                  "content": "# GitFusion Brain Run\n\n- Data: 2026-05-19T08:09:53.653Z\n- Intenção: code_task\n- Complexidade: low\n- Risco: normal\n- Segurança: planned\n- Modelo: gitfusion/deterministic-mobile-agent\n\n## Pedido\ncrie projeto selftest-agent e liste workspace\n\n## Etapas\n- [x] 1. Receber pedido (5min) - Capturar prompt, anexos e estado do projeto.\n- [x] 2. Entender intenção (8min) - Classificar como code_task.\n- [x] 3. Buscar memória/RAG (10min) - Consultar MemPalace, wiki, docs e decisões anteriores.\n- [ ] 4. Inspecionar workspace (14min) - Localizar arquivos prováveis e dependências.\n- [ ] 5. Desenhar alteração (14min) - Planejar arquivos, funções e UI afetadas.\n- [ ] 6. Criar tasks de código (9min) - Registrar passos antes de alterar.\n- [ ] 7. Execução supervisionada (22min) - Aplicar alteração quando houver autorização/ferramenta.\n- [ ] 8. Salvar aprendizado (6min) - Registrar decisão, erro/sucesso e dataset futuro.\n\n## Resposta\nCiclo 1: code_task. Workspace analisado: 1 arquivo(s), 2 pasta(s). Stack: não detectada. package.json: 0. Principais: .gitfusion-backups/brain_1779178193643_4e4c9d18/snapshot.json\n"
+                },
+                {
+                  "path": "src/.gitkeep",
+                  "content": ""
+                }
+              ]
+            },
+            "result": {
+              "path": "selftest-agent",
+              "files": 3,
+              "created": true
+            },
+            "startedAt": "2026-05-19T08:09:53.660Z",
+            "finishedAt": "2026-05-19T08:09:53.667Z"
+          },
+          {
+            "ok": true,
+            "action": {
+              "type": "list_workspace",
+              "title": "Verificar workspace após ações",
+              "path": ""
+            },
+            "result": {
+              "path": ".",
+              "entries": [
+                {
+                  "name": ".gitfusion-agent",
+                  "type": "dir"
+                },
+                {
+                  "name": ".gitfusion-backups",
+                  "type": "dir"
+                },
+                {
+                  "name": "brain-runs",
+                  "type": "dir"
+                },
+                {
+                  "name": "selftest-agent",
+                  "type": "dir"
+                }
+              ]
+            },
+            "startedAt": "2026-05-19T08:09:53.667Z",
+            "finishedAt": "2026-05-19T08:09:53.668Z"
+          }
+        ]
+      },
+      "verification": {
+        "ok": true,
+        "okActions": 5,
+        "failed": [],
+        "scan": "8 arquivo(s), 17 pasta(s). Stack: não detectada. package.json: 0. Principais: .gitfusion-agent/context-1779178193653.md, .gitfusion-backups/brain_1779178193643_4e4c9d18/snapshot.json, .gitfusion-backups/manual/snapshot.json, brain-runs/brain_1779178193643_4e4c9d18.md, selftest-agent/.gitfusion-backups/manual/snapshot.json, selftest-agent/README.md, selftest-agent/docs/brain-plan.md, selftest-agent/src/.gitkeep",
+        "needsApproval": false
+      }
+    }
+  ],
+  "learning": {
+    "roomId": "mobile-general"
+  },
+  "answer": "🤖 GitFusion Autonomous Agent\n\nStatus: completed\nIntenção: code_task\nProgresso: 100%\nCiclos: 1\nAções reais: 5/5\nWorkspace: /mnt/data/gf15_5/workspaces/pessoal\n\nÚltima verificação:\n8 arquivo(s), 17 pasta(s). Stack: não detectada. package.json: 0. Principais: .gitfusion-agent/context-1779178193653.md, .gitfusion-backups/brain_1779178193643_4e4c9d18/snapshot.json, .gitfusion-backups/manual/snapshot.json, brain-runs/brain_1779178193643_4e4c9d18.md, selftest-agent/.gitfusion-backups/manual/snapshot.json, selftest-agent/README.md, selftest-agent/docs/brain-plan.md, selftest-agent/src/.gitkeep\n\nPedido original:\ncrie projeto selftest-agent e liste workspace",
+  "finalStatus": "completed",
+  "updatedAt": "2026-05-19T08:09:53.677Z"
+}

@@ -1,0 +1,22 @@
+{
+  "appId": "com.gitfusion.app",
+  "appName": "GitFusion",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "http",
+    "cleartext": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 800,
+      "backgroundColor": "#05070d",
+      "showSpinner": false
+    },
+    "Keyboard": {
+      "resize": "body"
+    }
+  },
+  "android": {
+    "allowMixedContent": true
+  }
+}

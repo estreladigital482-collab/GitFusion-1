@@ -1,0 +1,32 @@
+{
+  "version": "16.6",
+  "updatedAt": "2026-05-19",
+  "packs": [
+    {
+      "id": "gitfusion-mobile-ai-core",
+      "title": "GitFusion Mobile AI Core",
+      "description": "Fontes para APK, Capacitor, Termux, Android build, RAG local e agentes de código.",
+      "topics": ["capacitor", "android", "termux", "offline-ai", "rag", "javascript", "node"],
+      "sources": [
+        {"id":"capacitor-readme","type":"url","url":"https://raw.githubusercontent.com/ionic-team/capacitor/main/README.md","license":"MIT","tags":["capacitor","android","apk"]},
+        {"id":"capacitor-android-readme","type":"url","url":"https://raw.githubusercontent.com/ionic-team/capacitor/main/android/README.md","license":"MIT","tags":["capacitor","android"]},
+        {"id":"termux-packages-readme","type":"url","url":"https://raw.githubusercontent.com/termux/termux-packages/master/README.md","license":"GPL-3.0","tags":["termux","packages"]},
+        {"id":"nodejs-readme","type":"url","url":"https://raw.githubusercontent.com/nodejs/node/main/README.md","license":"MIT","tags":["node","runtime"]},
+        {"id":"express-readme","type":"url","url":"https://raw.githubusercontent.com/expressjs/express/master/Readme.md","license":"MIT","tags":["node","express","server"]},
+        {"id":"llama-cpp-readme","type":"url","url":"https://raw.githubusercontent.com/ggml-org/llama.cpp/master/README.md","license":"MIT","tags":["llama.cpp","gguf","offline-ai"]}
+      ]
+    },
+    {
+      "id": "programming-docs-seed",
+      "title": "Programming Docs Seed",
+      "description": "Base inicial leve para programação, padrões, Git e web.",
+      "topics": ["javascript", "web", "git", "patterns"],
+      "sources": [
+        {"id":"git-readme","type":"url","url":"https://raw.githubusercontent.com/git/git/master/README.md","license":"GPL-2.0","tags":["git","version-control"]},
+        {"id":"typescript-readme","type":"url","url":"https://raw.githubusercontent.com/microsoft/TypeScript/main/README.md","license":"Apache-2.0","tags":["typescript","javascript"]},
+        {"id":"vite-readme","type":"url","url":"https://raw.githubusercontent.com/vitejs/vite/main/README.md","license":"MIT","tags":["frontend","build"]},
+        {"id":"react-readme","type":"url","url":"https://raw.githubusercontent.com/facebook/react/main/README.md","license":"MIT","tags":["react","frontend"]}
+      ]
+    }
+  ]
+}

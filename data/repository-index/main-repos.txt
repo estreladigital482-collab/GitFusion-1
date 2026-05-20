@@ -1,0 +1,17 @@
+external-repos/Claude-Code-Auditor-Enhanced
+external-repos/Kimi-K2.5
+external-repos/NemoClaw
+external-repos/OpenJarvis
+external-repos/browser-use
+external-repos/claude-code-security-review
+external-repos/jsoncanvas
+external-repos/legacy-jarvis
+external-repos/mempalace
+external-repos/mempalace-Aya-fork
+external-repos/modly
+external-repos/obsidian-clipper
+external-repos/obsidian-help
+external-repos/obsidian-releases
+external-repos/obsidian-sample-plugin
+external-repos/openclaw
+external-repos/square-ui

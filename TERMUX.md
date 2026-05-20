@@ -1,19 +1,8 @@
-# GitFusion no Termux
+# Termux
 
 ```bash
 cd ~/GitFusion
+unzip -o /sdcard/Download/GitFusion-functional-space-v4.zip
 npm install
 npm start
-```
-
-Abra:
-
-```txt
-http://127.0.0.1:3737
-```
-
-Se quiser limpar os projetos temporários:
-
-```bash
-npm run clean
 ```

@@ -1,0 +1,25 @@
+FROM node:22-bookworm
+
+WORKDIR /app
+ENV DEBIAN_FRONTEND=noninteractive
+ENV ANDROID_HOME=/opt/android-sdk
+ENV ANDROID_SDK_ROOT=/opt/android-sdk
+ENV PATH=$PATH:/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/platform-tools
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openjdk-17-jdk wget unzip git ca-certificates gradle \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p $ANDROID_HOME/cmdline-tools \
+  && wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/cmdline-tools.zip \
+  && unzip -q /tmp/cmdline-tools.zip -d /tmp/android-tools \
+  && mv /tmp/android-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest \
+  && rm /tmp/cmdline-tools.zip \
+  && yes | sdkmanager --licenses >/dev/null \
+  && sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
+COPY package*.json ./
+RUN npm install --no-audit --no-fund
+COPY . .
+RUN npm run build
+CMD ["bash", "-lc", "npm run apk:init && npm run apk:debug && ls -lah android/app/build/outputs/apk/debug"]

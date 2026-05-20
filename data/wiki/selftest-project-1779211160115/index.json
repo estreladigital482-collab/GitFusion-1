@@ -1,0 +1,32 @@
+{
+  "projectId": "selftest-project-1779211160115",
+  "title": "Wiki do projeto",
+  "createdAt": "2026-05-19T17:19:20.249Z",
+  "updatedAt": "2026-05-19T17:19:20.357Z",
+  "pages": [
+    {
+      "slug": "home",
+      "title": "selftest-project-1779211160115",
+      "updatedAt": "2026-05-19T17:19:20.253Z"
+    },
+    {
+      "slug": "objetivo",
+      "title": "Objetivo",
+      "updatedAt": "2026-05-19T17:19:20.353Z"
+    }
+  ],
+  "history": [
+    {
+      "at": "2026-05-19T17:19:20.357Z",
+      "type": "page:save",
+      "slug": "objetivo",
+      "message": "Página salva: Objetivo"
+    },
+    {
+      "at": "2026-05-19T17:19:20.256Z",
+      "type": "page:save",
+      "slug": "home",
+      "message": "Página salva: selftest-project-1779211160115"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">GitFusion</string>
+    <string name="title_activity_main">GitFusion</string>
+    <string name="package_name">com.gitfusion.app</string>
+    <string name="custom_url_scheme">com.gitfusion.app</string>
+</resources>

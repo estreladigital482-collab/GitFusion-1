@@ -1,0 +1,99 @@
+{
+  "id": "chat_1779227294618_3aXDTG",
+  "ok": true,
+  "createdAt": "2026-05-19T21:48:14.619Z",
+  "updatedAt": "2026-05-19T21:48:15.985Z",
+  "status": "completed",
+  "prompt": "faça uma análise",
+  "chatId": "main",
+  "projectId": "general",
+  "mode": "offline",
+  "intent": "chat",
+  "progress": 100,
+  "current": "Resposta final gerada",
+  "estimateMinutes": 2,
+  "steps": [
+    {
+      "id": "receive",
+      "title": "Ler pedido",
+      "status": "done",
+      "percent": 12,
+      "index": 1,
+      "estimateMinutes": 1
+    },
+    {
+      "id": "mode",
+      "title": "Verificar modo Auto/Online/Offline",
+      "status": "done",
+      "percent": 24,
+      "index": 2,
+      "estimateMinutes": 1
+    },
+    {
+      "id": "rag",
+      "title": "Consultar memória/RAG local",
+      "status": "done",
+      "percent": 38,
+      "index": 3,
+      "estimateMinutes": 1
+    },
+    {
+      "id": "answer",
+      "title": "Responder diretamente",
+      "status": "done",
+      "percent": 92,
+      "index": 4,
+      "estimateMinutes": 2
+    },
+    {
+      "id": "done",
+      "title": "Finalizar resposta",
+      "status": "done",
+      "percent": 100,
+      "index": 5,
+      "estimateMinutes": 2
+    }
+  ],
+  "events": [
+    {
+      "at": "2026-05-19T21:48:14.620Z",
+      "percent": 3,
+      "title": "Iniciando motor real do GitFusion"
+    },
+    {
+      "at": "2026-05-19T21:48:14.871Z",
+      "percent": 12,
+      "title": "Pedido recebido e classificado"
+    },
+    {
+      "at": "2026-05-19T21:48:15.206Z",
+      "percent": 24,
+      "title": "Modo ativo: auto → offline"
+    },
+    {
+      "at": "2026-05-19T21:48:15.560Z",
+      "percent": 38,
+      "title": "Sem contexto local relevante"
+    },
+    {
+      "at": "2026-05-19T21:48:15.794Z",
+      "percent": 92,
+      "title": "Responder diretamente"
+    },
+    {
+      "at": "2026-05-19T21:48:15.978Z",
+      "percent": 92,
+      "title": "Responder diretamente concluído"
+    },
+    {
+      "at": "2026-05-19T21:48:15.983Z",
+      "percent": 100,
+      "title": "Resposta final gerada"
+    }
+  ],
+  "provider": "gitfusion-local-fallback",
+  "model": "none",
+  "answer": "Entendi seu pedido: faça uma análise\n\nEstado real do motor: ainda não existe modelo de IA ativo conectado.\nModo atual: auto. Efetivo: offline.\nOnline configurado: não. Local/Ollama: não.\n\nEu não vou fingir que sou um LLM aqui. Posso operar como motor local de projeto: criar plano, tasks, ler RAG/memória, preparar comandos e acionar executor seguro. Para conversa inteligente de verdade, conecte uma API online ou um modelo local Ollama.\n\nPróximo passo prático:\nMe mande o objetivo exato, arquivos/repositórios ou erro, e eu transformo em tasks executáveis.",
+  "contextSources": [],
+  "usedRag": false
+}

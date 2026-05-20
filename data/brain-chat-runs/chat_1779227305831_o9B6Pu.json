@@ -1,0 +1,135 @@
+{
+  "id": "chat_1779227305831_o9B6Pu",
+  "ok": true,
+  "createdAt": "2026-05-19T21:48:25.832Z",
+  "updatedAt": "2026-05-19T21:48:28.219Z",
+  "status": "completed",
+  "prompt": "faça uma análise do apk",
+  "chatId": "main",
+  "projectId": "general",
+  "mode": "offline",
+  "intent": "android-build",
+  "progress": 100,
+  "current": "Resposta final gerada",
+  "estimateMinutes": 3,
+  "steps": [
+    {
+      "id": "receive",
+      "title": "Ler pedido",
+      "status": "done",
+      "percent": 12,
+      "index": 1,
+      "estimateMinutes": 1
+    },
+    {
+      "id": "mode",
+      "title": "Verificar modo Auto/Online/Offline",
+      "status": "done",
+      "percent": 24,
+      "index": 2,
+      "estimateMinutes": 1
+    },
+    {
+      "id": "rag",
+      "title": "Consultar memória/RAG local",
+      "status": "done",
+      "percent": 38,
+      "index": 3,
+      "estimateMinutes": 1
+    },
+    {
+      "id": "env",
+      "title": "Ler ambiente Android/Termux",
+      "status": "done",
+      "percent": 54,
+      "index": 4,
+      "estimateMinutes": 2
+    },
+    {
+      "id": "compat",
+      "title": "Checar compatibilidade SDK/Gradle/Capacitor",
+      "status": "done",
+      "percent": 74,
+      "index": 5,
+      "estimateMinutes": 2
+    },
+    {
+      "id": "apk",
+      "title": "Gerar próximos comandos para APK",
+      "status": "done",
+      "percent": 92,
+      "index": 6,
+      "estimateMinutes": 2
+    },
+    {
+      "id": "done",
+      "title": "Finalizar resposta",
+      "status": "done",
+      "percent": 100,
+      "index": 7,
+      "estimateMinutes": 2
+    }
+  ],
+  "events": [
+    {
+      "at": "2026-05-19T21:48:25.833Z",
+      "percent": 3,
+      "title": "Iniciando motor real do GitFusion"
+    },
+    {
+      "at": "2026-05-19T21:48:26.084Z",
+      "percent": 12,
+      "title": "Pedido recebido e classificado"
+    },
+    {
+      "at": "2026-05-19T21:48:26.644Z",
+      "percent": 24,
+      "title": "Modo ativo: auto → offline"
+    },
+    {
+      "at": "2026-05-19T21:48:26.996Z",
+      "percent": 38,
+      "title": "Sem contexto local relevante"
+    },
+    {
+      "at": "2026-05-19T21:48:27.219Z",
+      "percent": 54,
+      "title": "Ler ambiente Android/Termux"
+    },
+    {
+      "at": "2026-05-19T21:48:27.402Z",
+      "percent": 54,
+      "title": "Ler ambiente Android/Termux concluído"
+    },
+    {
+      "at": "2026-05-19T21:48:27.625Z",
+      "percent": 74,
+      "title": "Checar compatibilidade SDK/Gradle/Capacitor"
+    },
+    {
+      "at": "2026-05-19T21:48:27.808Z",
+      "percent": 74,
+      "title": "Checar compatibilidade SDK/Gradle/Capacitor concluído"
+    },
+    {
+      "at": "2026-05-19T21:48:28.031Z",
+      "percent": 92,
+      "title": "Gerar próximos comandos para APK"
+    },
+    {
+      "at": "2026-05-19T21:48:28.214Z",
+      "percent": 92,
+      "title": "Gerar próximos comandos para APK concluído"
+    },
+    {
+      "at": "2026-05-19T21:48:28.219Z",
+      "percent": 100,
+      "title": "Resposta final gerada"
+    }
+  ],
+  "provider": "gitfusion-local-fallback",
+  "model": "none",
+  "answer": "Entendi seu pedido: faça uma análise do apk\n\nEstado real do motor: ainda não existe modelo de IA ativo conectado.\nModo atual: auto. Efetivo: offline.\nOnline configurado: não. Local/Ollama: não.\n\nEu não vou fingir que sou um LLM aqui. Posso operar como motor local de projeto: criar plano, tasks, ler RAG/memória, preparar comandos e acionar executor seguro. Para conversa inteligente de verdade, conecte uma API online ou um modelo local Ollama.\n\nPróximo passo prático:\n1. Conferir SDK/Capacitor/Gradle. 2. Ajustar versões. 3. Gerar app-debug.apk.",
+  "contextSources": [],
+  "usedRag": false
+}

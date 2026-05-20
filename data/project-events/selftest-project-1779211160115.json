@@ -1,0 +1,38 @@
+{
+  "projectId": "selftest-project-1779211160115",
+  "events": [
+    {
+      "id": "jklTFb4u4G",
+      "at": "2026-05-19T17:19:20.528Z",
+      "type": "chat:message",
+      "message": "Mensagem adicionada em Teste real",
+      "chatId": "chat-gMsfFYPZ2t"
+    },
+    {
+      "id": "ePwxaLunu4",
+      "at": "2026-05-19T17:19:20.485Z",
+      "type": "chat:create",
+      "message": "Chat criado: Teste real",
+      "chatId": "chat-gMsfFYPZ2t"
+    },
+    {
+      "id": "xpK82nrqXo",
+      "at": "2026-05-19T17:19:20.360Z",
+      "type": "project:bootstrap",
+      "message": "Projeto inicializado com chat, tasks e wiki."
+    },
+    {
+      "id": "iuKhLsFry1",
+      "at": "2026-05-19T17:19:20.323Z",
+      "type": "chat:create",
+      "message": "Chat criado: Planejamento inicial",
+      "chatId": "chat-LaTvp5a2aC"
+    },
+    {
+      "id": "S5AJlJr0aB",
+      "at": "2026-05-19T17:19:20.265Z",
+      "type": "project:create",
+      "message": "Projeto inteligente criado."
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "tasks": [
+    {
+      "id": "kClyEWHQVH",
+      "projectId": "general",
+      "title": "Responder diretamente",
+      "description": "Criado pelo chat real para: faça uma análise",
+      "status": "planned",
+      "progress": 0,
+      "estimateMinutes": 2,
+      "createdAt": "2026-05-19T21:48:15.797Z"
+    },
+    {
+      "id": "TL72amE5uc",
+      "projectId": "general",
+      "title": "Gerar próximos comandos para APK",
+      "description": "Criado pelo chat real para: faça uma análise do apk",
+      "status": "planned",
+      "progress": 0,
+      "estimateMinutes": 2,
+      "createdAt": "2026-05-19T21:48:28.033Z"
+    }
+  ]
+}

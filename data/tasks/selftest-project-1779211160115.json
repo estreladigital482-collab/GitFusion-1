@@ -1,0 +1,24 @@
+{
+  "tasks": [
+    {
+      "id": "dbi_ADGJ07",
+      "projectId": "selftest-project-1779211160115",
+      "title": "Definir objetivo do projeto",
+      "description": "Validar projeto inteligente no celular",
+      "status": "pending_approval",
+      "progress": 0,
+      "estimateMinutes": 10,
+      "createdAt": "2026-05-19T17:19:20.344Z"
+    },
+    {
+      "id": "_HVNZQEWw5",
+      "projectId": "selftest-project-1779211160115",
+      "title": "Mapear arquivos e dependências",
+      "description": "Analisar workspace, stack e pontos sensíveis antes de executar mudanças.",
+      "status": "pending_approval",
+      "progress": 0,
+      "estimateMinutes": 15,
+      "createdAt": "2026-05-19T17:19:20.347Z"
+    }
+  ]
+}

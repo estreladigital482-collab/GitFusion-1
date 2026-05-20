@@ -1,0 +1,43 @@
+{
+  "version": "16.4",
+  "updatedAt": "2026-05-19T00:00:00.000Z",
+  "packages": [
+    {
+      "id": "core-knowledge",
+      "name": "GitFusion Core Knowledge",
+      "version": "1.0.0",
+      "kind": "builtin",
+      "required": true,
+      "description": "Conhecimento mínimo para o APK trabalhar offline com MemPalace, RAG, projetos e diagnóstico.",
+      "files": [
+        {"path":"core/gitfusion-offline-architecture.md","type":"text/markdown","text":"# GitFusion Offline Architecture\n\nO APK deve iniciar leve, verificar pacotes essenciais, instalar conhecimento local e trabalhar com MemPalace + RAG mesmo sem internet.\n\nCamadas:\n- Bootstrap Manager: baixa/instala pacotes essenciais e modelos quando configurados.\n- MemPalace: guarda decisões, erros, soluções, projetos e respostas.\n- Local RAG: pesquisa arquivos importados, pacotes instalados e histórico.\n- Runtime Router: tenta embedded GGUF, Ollama local, API online e fallback simbólico.\n- Executor seguro: trabalha no armazenamento permitido do Android e usa permissões de arquivos quando disponíveis.\n\nO app não deve fingir IA. Se não houver modelo, deve responder com diagnóstico, plano e contexto local."},
+        {"path":"core/project-workflow.md","type":"text/markdown","text":"# Fluxo de Projeto\n\n1. Usuário cria ou importa projeto.\n2. GitFusion indexa arquivos em chunks.\n3. MemPalace registra objetivo, decisões e erros.\n4. Chat consulta RAG antes de responder.\n5. Tasks são criadas com progresso real.\n6. Alterações devem ser pequenas, verificáveis e reversíveis.\n7. Cada sucesso reforça memória forte; cada falha vira alerta de risco."},
+        {"path":"core/offline-limits.md","type":"text/markdown","text":"# Limites Offline\n\nSem motor GGUF/Ollama/API, o GitFusion não é um LLM completo. Ele ainda pode: buscar na base local, organizar plano, criar tasks, diagnosticar logs, registrar decisões, sugerir comandos e explicar limitações.\n\nPara IA generativa offline completa, instalar pacote de runtime nativo llama.cpp/gguf ou conectar Ollama local."}
+      ]
+    },
+    {
+      "id": "apk-engine",
+      "name": "APK Engine Rules",
+      "version": "1.0.0",
+      "kind": "builtin",
+      "required": true,
+      "description": "Regras de execução para o motor do APK.",
+      "files": [
+        {"path":"engine/runtime-router.md","type":"text/markdown","text":"# Runtime Router\n\nOrdem em modo Auto:\n1. embedded: modelo GGUF embarcado/baixado para armazenamento do app.\n2. ollama: http://127.0.0.1:11434 quando usuário ligar motor externo.\n3. online: API OpenAI-compatible configurada pelo usuário.\n4. symbolic: MemPalace + RAG + regras locais.\n\nOffline deve tentar embedded primeiro. Se não existir modelo, usar symbolic sem inventar resposta de LLM."},
+        {"path":"engine/progress.md","type":"text/markdown","text":"# Progresso Real\n\nA barra de progresso deve refletir etapas executadas: receber mensagem, salvar memória, buscar RAG, escolher runtime, executar resposta, criar tasks, salvar decisão.\n\nNão usar 100% instantâneo falso. Cada etapa precisa atualizar status e registrar evento."},
+        {"path":"engine/bootstrap-downloads.md","type":"text/markdown","text":"# Downloads no Primeiro Uso\n\nO APK pode instalar pacotes no primeiro uso como jogos fazem. Pacotes devem ter manifesto, versão, hash, tamanho, tipo e status.\n\nTipos:\n- builtin: vem dentro do APK.\n- remote: baixa de URL configurada.\n- model: GGUF ou runtime nativo, pode ser grande.\n\nSem URL de hospedagem, o app instala apenas pacotes embutidos e mostra pendências reais."}
+      ]
+    },
+    {
+      "id": "termux-apk-notes",
+      "name": "Termux APK Build Notes",
+      "version": "1.0.0",
+      "kind": "builtin",
+      "required": true,
+      "description": "Notas do caminho que funcionou no celular Android 15 arm64-v8a.",
+      "files": [
+        {"path":"build/termux-android15-arm64.md","type":"text/markdown","text":"# Build Termux Android 15 arm64-v8a\n\nConfiguração que funcionou melhor:\n- Capacitor 6.2.1\n- Gradle 8.2.1\n- openjdk-21\n- Android SDK commandline tools manual\n- aapt2 do Termux: /data/data/com.termux/files/usr/bin/aapt2\n- compileSdkVersion 34 para Capacitor 6\n- targetSdkVersion 34\n- android.useAndroidX=true\n- local.properties com sdk.dir=$HOME/android-sdk\n\nComando final: cd android && ./gradlew assembleDebug"}
+      ]
+    }
+  ]
+}

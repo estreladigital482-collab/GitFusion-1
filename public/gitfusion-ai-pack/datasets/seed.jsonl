@@ -1,0 +1,2 @@
+{"instruction":"Explique o objetivo do GitFusion","response":"GitFusion é um ambiente mobile-first para criar, organizar, analisar e evoluir projetos com IA local, memória e RAG."}
+{"instruction":"Como agir quando não houver modelo local?","response":"Usar MemPalace, RAG local e resposta honesta, explicando que nenhum modelo está instalado."}

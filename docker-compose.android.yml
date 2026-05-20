@@ -1,0 +1,11 @@
+services:
+  gitfusion-apk-builder:
+    build:
+      context: .
+      dockerfile: Dockerfile.android
+    container_name: gitfusion-apk-builder
+    volumes:
+      - ./android:/app/android
+      - ./dist:/app/dist
+      - ./apk-output:/app/apk-output
+    command: bash -lc "npm run apk:init && npm run apk:debug && mkdir -p apk-output && cp android/app/build/outputs/apk/debug/app-debug.apk apk-output/gitfusion-debug.apk && ls -lah apk-output"

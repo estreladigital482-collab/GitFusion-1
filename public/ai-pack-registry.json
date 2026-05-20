@@ -1,0 +1,55 @@
+{
+  "version": "16.5",
+  "updatedAt": "2026-05-19",
+  "notes": "Pacotes grandes para GitFusion. O APK pode baixar/registrar modelos e também usar Ollama/llama.cpp quando disponíveis.",
+  "runtimeOrder": ["embedded-gguf", "llama-cpp-server", "ollama", "online", "symbolic"],
+  "models": [
+    {
+      "id": "qwen25-coder-15b-q4km",
+      "name": "Qwen2.5 Coder 1.5B Instruct Q4_K_M",
+      "family": "qwen-coder",
+      "role": "programar, revisar código, planejar alterações",
+      "priority": 1,
+      "sizeBytes": 990000000,
+      "repo": "bartowski/Qwen2.5-Coder-1.5B-Instruct-GGUF",
+      "filename": "Qwen2.5-Coder-1.5B-Instruct-Q4_K_M.gguf",
+      "hfUrl": "https://huggingface.co/bartowski/Qwen2.5-Coder-1.5B-Instruct-GGUF/resolve/main/Qwen2.5-Coder-1.5B-Instruct-Q4_K_M.gguf?download=true",
+      "ollamaRef": "hf.co/bartowski/Qwen2.5-Coder-1.5B-Instruct-GGUF:Q4_K_M",
+      "status": "remote-download",
+      "required": true
+    },
+    {
+      "id": "deepseek-coder-13b-q4km",
+      "name": "DeepSeek Coder 1.3B Instruct Q4_K_M",
+      "family": "deepseek-coder",
+      "role": "programação, explicação técnica e fusão de projetos",
+      "priority": 2,
+      "sizeBytes": 870000000,
+      "repo": "TheBloke/deepseek-coder-1.3b-instruct-GGUF",
+      "filename": "deepseek-coder-1.3b-instruct.Q4_K_M.gguf",
+      "hfUrl": "https://huggingface.co/TheBloke/deepseek-coder-1.3b-instruct-GGUF/resolve/main/deepseek-coder-1.3b-instruct.Q4_K_M.gguf?download=true",
+      "ollamaRef": "hf.co/TheBloke/deepseek-coder-1.3b-instruct-GGUF:Q4_K_M",
+      "status": "remote-download",
+      "required": true
+    },
+    {
+      "id": "tinyllama-chat-q4km",
+      "name": "TinyLlama 1.1B Chat Q4_K_M",
+      "family": "tinyllama",
+      "role": "teste leve, resumo, fallback rápido",
+      "priority": 3,
+      "sizeBytes": 670000000,
+      "repo": "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF",
+      "filename": "tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf",
+      "hfUrl": "https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf?download=true",
+      "ollamaRef": "hf.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF:Q4_K_M",
+      "status": "remote-download",
+      "required": true
+    }
+  ],
+  "knowledgePacks": [
+    {"id":"gitfusion-core-docs","name":"GitFusion Core Docs","status":"builtin","required":true},
+    {"id":"programming-patterns","name":"Padrões de programação e arquitetura","status":"builtin","required":true},
+    {"id":"apk-offline-playbook","name":"Manual APK offline e Termux","status":"builtin","required":true}
+  ]
+}

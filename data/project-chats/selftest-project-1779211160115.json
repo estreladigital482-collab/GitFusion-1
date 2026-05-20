@@ -1,0 +1,36 @@
+{
+  "projectId": "selftest-project-1779211160115",
+  "chats": [
+    {
+      "id": "chat-gMsfFYPZ2t",
+      "projectId": "selftest-project-1779211160115",
+      "title": "Teste real",
+      "messages": [
+        {
+          "role": "ai",
+          "text": "Chat conectado ao projeto. Tudo aqui fica na memória deste projeto."
+        },
+        {
+          "role": "user",
+          "text": "Mensagem de teste persistida na memória do projeto.",
+          "at": "2026-05-19T17:19:20.525Z"
+        }
+      ],
+      "createdAt": "2026-05-19T17:19:20.483Z",
+      "updatedAt": "2026-05-19T17:19:20.525Z"
+    },
+    {
+      "id": "chat-LaTvp5a2aC",
+      "projectId": "selftest-project-1779211160115",
+      "title": "Planejamento inicial",
+      "messages": [
+        {
+          "role": "ai",
+          "text": "Projeto selftest-project-1779211160115 criado. Vou manter chats, tarefas, memória e wiki separados para este projeto."
+        }
+      ],
+      "createdAt": "2026-05-19T17:19:20.321Z",
+      "updatedAt": "2026-05-19T17:19:20.321Z"
+    }
+  ]
+}

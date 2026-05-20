@@ -1,0 +1,23 @@
+{
+  "id": "selftest-project-1779211160115",
+  "jobId": "selftest-project-1779211160115",
+  "name": "selftest-project-1779211160115",
+  "status": "active",
+  "kind": "intelligent-project",
+  "progress": 0,
+  "repos": [],
+  "createdAt": "2026-05-19T17:19:20.233Z",
+  "updatedAt": "2026-05-19T17:19:20.561Z",
+  "stats": {
+    "chats": 2,
+    "tasks": 2,
+    "memories": 5,
+    "wikiPages": 2,
+    "files": 0
+  },
+  "settings": {
+    "isolatedMemory": true,
+    "isolatedWiki": true,
+    "isolatedChats": true
+  }
+}

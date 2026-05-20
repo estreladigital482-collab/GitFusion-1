@@ -1,98 +1,605 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#000000" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#080808" />
   <title>GitFusion</title>
   <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <canvas id="voidGrid"></canvas>
-  <main class="app-shell">
-    <header class="topbar">
-      <div>
-        <div class="brand-mark">GF</div>
-      </div>
-      <div class="brand-copy">
-        <h1>GitFusion</h1>
-        <p>Merge repositories into one intelligent system.</p>
-      </div>
-      <button id="healthBtn" class="ghost-btn small">status</button>
-    </header>
-
-    <section class="hero-card">
-      <div class="kicker">REPOSITORY FUSION ENGINE</div>
-      <h2>Una projetos reais, analise estruturas e exporte um pacote novo.</h2>
-      <p>GitFusion baixa repositórios públicos do GitHub, detecta stacks, preserva uma base, importa os demais e gera um ZIP consolidado com relatório técnico.</p>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <span>01</span>
-        <h3>Repositórios</h3>
-      </div>
-      <label>Nome do projeto final</label>
-      <input id="projectName" value="gitfusion-lab" placeholder="nome-do-projeto" />
-
-      <label>Repositórios GitHub públicos</label>
-      <textarea id="reposInput" rows="5" placeholder="https://github.com/user/repo-a&#10;https://github.com/user/repo-b"></textarea>
-
-      <div class="action-row">
-        <button id="analyzeBtn" class="primary-btn">Analisar repositórios</button>
-        <button id="clearBtn" class="ghost-btn">Limpar</button>
-      </div>
-    </section>
-
-    <section class="grid-layout">
-      <article class="panel">
-        <div class="panel-head">
-          <span>02</span>
-          <h3>Mapa detectado</h3>
+  <div class="stars" aria-hidden="true"></div>
+  <main class="app">
+    <aside id="sidebar" class="sidebar">
+      <div class="side-top chatgpt-side-top">
+        <div class="side-headline sidebar-navbar">
+          <button id="closeSide" class="round-btn" aria-label="fechar menu">
+            <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+          </button>
+          <strong>GitFusion</strong>
+          <div class="profile-search-box"><button id="searchIconBtn" class="profile-search-btn" aria-label="buscar"><svg viewBox="0 0 24 24"><path d="M10 18a8 8 0 1 1 5.7-2.3L21 21"/></svg></button><button id="profileBtn" class="profile-dot" aria-label="perfil">TS</button><button id="sidebarMoreBtn" class="profile-search-btn sidebar-more-btn" aria-label="mais opções"><svg viewBox="0 0 24 24"><path d="M12 5h.01M12 12h.01M12 19h.01"/></svg></button></div>
         </div>
-        <div id="repoList" class="repo-list empty">Nenhum repositório analisado ainda.</div>
-      </article>
+        <button id="newProject" class="side-action">
+          <svg viewBox="0 0 24 24"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H10l2 2h6.5A2.5 2.5 0 0 1 21 9.5v7A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5zM12 11v5M9.5 13.5h5"/></svg>
+          Novo projeto
+        </button>
+      </div>
 
-      <article class="panel terminal-panel">
-        <div class="panel-head">
-          <span>03</span>
-          <h3>Engine logs</h3>
+      <nav class="side-section gf-nav-architecture">
+        <button id="pagesMenuToggle" class="side-item menu-root" type="button">
+          <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h16"/></svg>
+          Menu
+          <span class="nav-caret">▸</span>
+        </button>
+        <div id="pagesMenuPanel" class="pages-menu-panel hidden"></div>
+        <div id="pinnedNav" class="pinned-nav"></div>
+      </nav>
+
+      <div class="side-section grow">
+        <div id="chatList" class="chat-list"></div>
+      </div>
+    <div class="side-bottom">
+        <button id="bottomChat" class="bottom-chat">
+          <svg viewBox="0 0 24 24"><path d="M4 5h16v10H8l-4 4z"/></svg>
+          Chat
+        </button>
+      </div>
+    </aside>
+
+    <section class="main">
+      <header class="topbar">
+        <button id="openSide" class="round-btn" aria-label="abrir menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+        <button id="titleBtn" class="title-btn">GitFusion</button>
+        <span class="topbar-spacer"></span>
+        <div class="top-actions-wrap">
+          <div id="chatModePill" class="mode-pill auto" aria-label="modo de atuação"><i id="chatConnectionDot" class="connection-dot auto"></i><span id="chatModeLabel">Auto</span></div>
+          <div class="top-actions-group" aria-label="ações do chat">
+            <button id="newChatTop" class="round-btn top-new-chat" aria-label="novo chat"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+            <button id="playModeBtn" class="round-btn top-play-btn" aria-label="abrir preview local"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7-11-7z"/></svg></button>
+            <button id="moreBtn" class="round-btn" aria-label="opções"><svg viewBox="0 0 24 24"><path d="M12 5h.01M12 12h.01M12 19h.01"/></svg></button>
+          </div>
         </div>
-        <pre id="logBox" class="log-box">[idle] aguardando repositórios...</pre>
-      </article>
-    </section>
+        <div id="moreMenu" class="menu-pop chatgpt-more-menu hidden">
+          <div class="menu-title" id="moreMenuTitle">Novo projeto</div>
+          <button id="shareChat"><svg viewBox="0 0 24 24"><path d="M18 8a3 3 0 1 0-2.8-4M6 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM18 22a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM8.7 12.7l6.6 3.6M15.3 7.7 8.7 11.3"/></svg>Compartilhar</button>
+          <button id="pinChat"><svg viewBox="0 0 24 24"><path d="m14 4 6 6-4 1-5 5-1 4-6-6 4-1 5-5z"/></svg>Fixar</button>
+          <button id="addPeople"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8M19 8v6M22 11h-6"/></svg>Adicionar pessoas</button>
+          <button id="addToProject"><svg viewBox="0 0 24 24"><path d="M3 7h7l2 2h9v9H3zM17 12v6M14 15h6"/></svg><span>Adicionar ao projeto</span><b class="chev">›</b></button>
+          <button id="uploadedFiles"><svg viewBox="0 0 24 24"><path d="M21 12.5 12 21a6 6 0 0 1-8.5-8.5L13 3a4 4 0 0 1 5.5 5.5L9 18a2 2 0 1 1-3-3l9-9"/></svg>Arquivos enviados</button>
+          <button id="addHome"><svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8M5 10v10h14V10"/></svg>Adicionar ao início</button>
+          <button id="archiveChat"><svg viewBox="0 0 24 24"><path d="M4 7h16v13H4zM4 7l2-4h12l2 4M9 12h6"/></svg>Arquivar</button>
+          <button id="deleteChat" class="danger"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13"/></svg>Excluir</button>
+        </div>
+      </header>
 
-    <section class="panel">
-      <div class="panel-head">
-        <span>04</span>
-        <h3>Fusão e exportação</h3>
-      </div>
-      <label>Repositório base</label>
-      <select id="baseSelect" disabled>
-        <option>Analise os repositórios primeiro</option>
-      </select>
-      <div class="action-row">
-        <button id="fuseBtn" class="primary-btn" disabled>Fusionar projeto</button>
-        <a id="downloadLink" class="ghost-btn disabled" href="#">Baixar ZIP</a>
-      </div>
-      <div class="notice">
-        APK Android: este pacote inclui workflow real para gerar APK depois que você subir o projeto em um repo. O APK não é compilado no navegador, porque isso precisa de ambiente Android/Gradle.
-      </div>
-    </section>
+      <section id="workspace" class="page active">
+        <div class="center-feed">
+          <div class="intro">
+            <img src="/assets/mascot-inner-clean.png" alt="">
+            <h1>Adicionar repositórios</h1><p class="intro-sub">Cole os links abaixo. Depois toque em gerar para abrir o chat de construção.</p>
+          </div>
+          <div id="repoChips" class="repo-chips"></div>
+          <div class="home-quick-actions"><button id="openWorkspaceIdeFromHome" class="ghost compact" type="button">Abrir workspace visual</button></div>
+        </div>
+      </section>
 
-    <section class="panel small-text">
-      <div class="panel-head">
-        <span>05</span>
-        <h3>Mobile e Docker</h3>
+      <section id="chat" class="page chat-page">
+        <div id="messages" class="messages"></div>
+      </section>
+
+
+      <section id="projectPage" class="page project-mobile-page">
+        <div id="projectPageContent"></div>
+      </section>
+
+
+      <section id="workspaceIde" class="page workspace-ide-page">
+        <div class="ide-shell">
+          <div class="ide-head">
+            <div><h2>Workspace visual</h2><p id="workspaceIdeMeta">Arquivos reais do espaço ativo.</p></div>
+            <div class="ide-actions">
+              <button id="workspaceIdeRefresh" class="ghost compact" type="button">Atualizar</button>
+              <button id="workspaceIdeNewFolder" class="ghost compact" type="button">Nova pasta</button>
+              <button id="workspaceIdeNewFile" class="primary compact" type="button">Novo arquivo</button>
+            </div>
+          </div>
+          <div class="ide-grid">
+            <aside class="ide-tree-pane">
+              <div class="ide-pane-title">Árvore</div>
+              <div id="workspaceIdeTree" class="file-tree ide-tree"></div>
+            </aside>
+            <section class="ide-editor-pane">
+              <div class="ide-editor-head">
+                <span id="workspaceIdePath">Nenhum arquivo aberto</span>
+                <div class="ide-editor-actions">
+                  <button id="workspaceIdeAskBrain" class="ghost compact" type="button">Enviar para IA</button>
+                  <button id="workspaceIdeSave" class="primary compact" type="button">Salvar</button>
+                </div>
+              </div>
+              <textarea id="workspaceIdeEditor" spellcheck="false" placeholder="Abra ou crie um arquivo para editar aqui."></textarea>
+              <div id="workspaceIdeStatus" class="ide-status">Pronto.</div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section id="library" class="page">
+        <div class="page-head"><h2>Repositórios mesclados</h2><p>Projetos finais gerados pelo GitFusion.</p></div>
+        <div class="library-toolbar">
+          <button id="refreshProjects" class="ghost compact"><svg viewBox="0 0 24 24"><path d="M20 6v6h-6M4 18v-6h6M19 12A7 7 0 0 0 7 7M5 12a7 7 0 0 0 12 5"/></svg> Atualizar</button>
+          <button id="closeTree" class="ghost compact hidden"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg> Fechar árvore</button>
+        </div>
+        <div id="projectGrid" class="project-grid"></div>
+        <div id="treePanel" class="project-explorer hidden">
+          <div class="explorer-sidebar">
+            <div class="explorer-title"><strong id="treeTitle">Arquivos</strong><small id="treeMeta">Projeto mesclado</small></div>
+            <div class="explorer-actions">
+              <button id="quickNewFileBtn" title="Criar rápido"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+              <button id="renameProjectBtn" title="Renomear"><svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+              <button id="exportProjectBtn" title="Exportar ZIP"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg></button>
+              <button id="deleteProjectBtn" title="Excluir" class="danger"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13"/></svg></button>
+            </div>
+            <div id="fileTree" class="file-tree vscode-tree"></div>
+          </div>
+          <div class="file-preview-pane">
+            <div class="file-preview-head">
+              <span id="filePreviewPath">Selecione um arquivo</span>
+              <button id="copyFileContent" class="round-mini" title="Copiar"><svg viewBox="0 0 24 24"><path d="M8 8h12v12H8zM4 4h12v12"/></svg></button>
+            </div>
+            <pre id="filePreview" class="file-preview">Abra uma pasta ou arquivo na árvore para visualizar a arquitetura.</pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="tasks" class="page tasks-page">
+        <div class="page-head"><h2>Tasks</h2><p>Área de tarefas do projeto, com arquitetura estilo Tasklight.</p></div>
+        <div id="tasksBoard" class="tasks-board"></div>
+      </section>
+
+      <section id="publish" class="page">
+        <div class="form-card slim github-publish-card">
+          <h2>Publicar no GitHub</h2>
+          <p>Crie um repositório novo com README, TASKS, branch inicial e push do projeto mesclado.</p>
+
+          <label>Token</label>
+          <input id="githubToken" type="password" placeholder="ghp_... ou github_pat_..." autocomplete="off">
+          <div class="row"><button id="saveToken" class="ghost">Salvar local</button><button id="verifyToken" class="ghost">Verificar</button></div>
+          <div id="githubStatus" class="status">Nenhuma conta conectada.</div>
+
+          <label>Projeto mesclado</label>
+          <select id="publishProjectSelect"></select>
+
+          <label>Nome do repositório novo</label>
+          <input id="publishName" placeholder="meu-repo-mesclado">
+
+          <label>Descrição</label>
+          <input id="publishDescription" placeholder="Criado com GitFusion">
+
+          <label>Branch inicial</label>
+          <input id="publishBranch" value="main" placeholder="main">
+
+          <div class="icon-toggle-row">
+            <button id="publishPrivate" class="icon-toggle on" type="button" data-on="true"><svg viewBox="0 0 24 24"><path d="M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5z"/></svg><span>Privado</span></button>
+            <button id="publishReadme" class="icon-toggle on" type="button" data-on="true"><svg viewBox="0 0 24 24"><path d="M4 5h7a3 3 0 0 1 3 3v11a3 3 0 0 0-3-3H4zM20 5h-7a3 3 0 0 0-3 3v11a3 3 0 0 1 3-3h7z"/></svg><span>README</span></button>
+            <button id="publishTasks" class="icon-toggle on" type="button" data-on="true"><svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h10M3 7h.01M3 12h.01M3 17h.01"/></svg><span>TASKS</span></button>
+          </div>
+
+          <button id="publishGithub" class="primary">Publicar repositório final</button>
+
+          <div class="github-tools">
+            <button id="githubBranches" class="ghost compact" type="button">Branches</button>
+            <button id="githubNewBranch" class="ghost compact" type="button">Nova branch</button>
+            <button id="githubPull" class="ghost compact" type="button">Pull</button>
+          </div>
+          <pre id="githubLog" class="mini-log">Aguardando ação.</pre>
+        </div>
+      </section>
+
+      <section id="settings" class="page profile-page">
+        <div class="profile-wrap">
+          <div class="profile-top">
+            <button class="round-btn" data-go="workspace"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+            <div id="profileAvatar" class="profile-avatar">TS</div>
+            <h2 id="profileNameTitle">Toby Santos</h2>
+          </div>
+          <div class="settings-group">
+            <div class="settings-title">GitFusion</div>
+            <button class="settings-row settings-card-row" data-go="personalization"><svg viewBox="0 0 24 24"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16z"/></svg><span>Personalização</span></button>
+            <button class="settings-row settings-card-row" data-go="connectivity"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 16 0M7 12a5 5 0 0 1 10 0M10 12a2 2 0 0 1 4 0M12 18h.01"/></svg><span>Online / Offline<small id="connectivitySummary">Automático</small></span></button>
+            <button class="settings-row settings-card-row" data-go="aiPacks"><svg viewBox="0 0 24 24"><path d="M4 7h16v10H4zM8 7V5h8v2M7 17v2h10v-2"/></svg><span>Pacotes IA<small>Modelos GGUF, Ollama e dados offline</small></span></button>
+            <button class="settings-row settings-card-row" data-go="autoTrainer"><svg viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M4.2 6.2l2.8 2.8M17 17l2.8 2.8M3 12h4M17 12h4M4.2 17.8 7 15M17 7l2.8-2.8M9 9h6v6H9z"/></svg><span>AutoTrainer<small>Baixa fontes, cria dataset e alimenta MemPalace/RAG</small></span></button>
+            <button class="settings-row settings-card-row" data-go="themes"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18h2a3 3 0 0 0 0-6h-1"/></svg><span>Temas<small>Muda layout, fundo, cards e botões</small></span></button>
+            <button class="settings-row settings-card-row" data-go="memory"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM9 8h6M9 12h6"/></svg><span>Memória do projeto</span></button>
+            <button class="settings-row settings-card-row" data-go="publish"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 8l5-5 5 5M5 17h14v4H5z"/></svg><span>Publicar no GitHub</span></button>
+          </div>
+          <div class="settings-group">
+            <div class="settings-title">Conta</div>
+            <button class="settings-row settings-card-row" data-go="workspaceSettings"><svg viewBox="0 0 24 24"><path d="M4 7h16v10H4z"/></svg><span>Espaço de trabalho<small>Pessoal</small></span></button>
+            <button id="clearLocal" class="settings-row settings-card-row danger"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13"/></svg><span>Limpar dados locais</span></button>
+          </div>
+        </div>
+      </section>
+
+
+
+      <section id="connectivity" class="page profile-page detail-page">
+        <div class="profile-wrap">
+          <div class="detail-top"><button class="round-btn" data-go="settings"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><h2>Online / Offline</h2></div>
+          <p class="settings-hint">Escolha como o GitFusion trabalha. No automático, ele detecta rede e usa online quando existir, ou offline quando não existir.</p>
+
+          <div class="mode-selector" id="networkModeSelector">
+            <button class="mode-option" data-network-mode="auto"><svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M3 12h3M18 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg><span>Automático<small>Detecta sozinho</small></span></button>
+            <button class="mode-option" data-network-mode="online"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 16 0M7 12a5 5 0 0 1 10 0M10 12a2 2 0 0 1 4 0M12 18h.01"/></svg><span>Online<small>Prioriza GitHub e APIs</small></span></button>
+            <button class="mode-option" data-network-mode="offline"><svg viewBox="0 0 24 24"><path d="M3 3l18 18M8.5 8.5A8 8 0 0 1 20 12M6.2 11A5 5 0 0 1 13 6.2M12 18h.01"/></svg><span>Offline<small>Não acessa internet</small></span></button>
+          </div>
+          <p id="connectivityAutoNote" class="settings-hint tiny-status">O status será detectado automaticamente e mostrado no chat.</p>
+
+          <div class="form-card slim functional-card engine-config-card">
+            <div class="settings-title">Motores de IA</div>
+            <label>Ollama local</label>
+            <input id="ollamaUrlInput" placeholder="http://127.0.0.1:11434">
+            <label>Modelo Ollama</label>
+            <input id="ollamaModelInput" placeholder="tinyllama, qwen2.5-coder:0.5b, deepseek-coder...">
+            <label>API online compatível com OpenAI</label>
+            <input id="onlineBaseUrlInput" placeholder="https://api.openai.com ou outro /v1 compatível">
+            <label>Modelo online</label>
+            <input id="onlineModelInput" placeholder="gpt-4o-mini, modelo customizado...">
+            <label>Token online</label>
+            <input id="onlineTokenInput" type="password" placeholder="sk-...">
+            <div class="row tight-row"><button id="saveRuntimeSettings" class="primary" type="button">Salvar motores</button><button id="testOllamaRuntime" class="ghost" type="button">Testar Ollama</button></div>
+            <div id="runtimeSettingsStatus" class="status">Configuração salva apenas no aparelho.</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="aiPacks" class="page profile-page detail-page">
+        <div class="profile-wrap detail-wrap">
+          <div class="detail-top"><button class="round-btn" data-go="settings"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><h2>Pacotes IA</h2></div>
+          <p class="settings-hint">Baixe modelos grandes e pacotes de conhecimento para o GitFusion trabalhar offline. Esta área aceita APK pesado: Qwen Coder, DeepSeek Coder, TinyLlama, Ollama e modelos GGUF.</p>
+          <div id="aiPacksStatus" class="status">Verificando pacotes...</div>
+          <div id="aiPacksList" class="settings-list-spaced"><p class="status">Carregando registry de modelos...</p></div>
+        </div>
+      </section>
+
+
+      <section id="autoTrainer" class="page profile-page detail-page">
+        <div class="settings-card profile-card">
+          <div class="detail-top"><button class="round-btn" data-go="settings"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><h2>AutoTrainer</h2></div>
+          <p class="settings-hint">Pipeline de aprendizado comandado pelo usuário: baixa fontes permitidas, limpa conteúdo, cria dataset local, alimenta MemPalace/RAG e prepara LoRA futuro.</p>
+          <div id="autoTrainerStatus" class="status">AutoTrainer aguardando comando.</div>
+          <div class="settings-list-spaced">
+            <label class="settings-row settings-card-row stack-row"><span>Tema de estudo<small>Ex: React + Capacitor, Android build no Termux, Node/Express, merge de projetos.</small></span><input id="autoTrainerTopic" placeholder="O que o GitFusion deve estudar?"></label>
+            <label class="settings-row settings-card-row stack-row"><span>Comando do usuário<small>O AutoTrainer só busca/baixa quando você autoriza aqui.</small></span><textarea id="autoTrainerCommand" rows="3" placeholder="Estude React, baixe docs e gere dataset para melhorar a base offline."></textarea></label>
+            <label class="settings-row settings-card-row stack-row"><span>URLs extras permitidas<small>Uma por linha. Prefira raw.githubusercontent.com, docs em texto, markdown, JSON ou TXT.</small></span><textarea id="autoTrainerUrls" rows="4" placeholder="https://raw.githubusercontent.com/.../README.md"></textarea></label>
+            <div class="rag-search-row">
+              <button id="autoTrainerPlanBtn" class="ghost" type="button">Criar plano</button>
+              <button id="autoTrainerRunBtn" class="primary" type="button">Baixar e treinar base local</button>
+            </div>
+            <div class="rag-search-row">
+              <button id="autoTrainerSeedBtn" class="ghost" type="button">Carregar fontes recomendadas</button>
+              <button id="autoTrainerDatasetBtn" class="ghost" type="button">Exportar dataset JSONL</button>
+            </div>
+          </div>
+          <div id="autoTrainerProgress" class="brain-card compact hidden"></div>
+          <div id="autoTrainerResults" class="rag-results"><p class="status">Nenhuma execução ainda.</p></div>
+        </div>
+      </section>
+
+      <section id="themes" class="page profile-page detail-page">
+        <div class="profile-wrap detail-wrap">
+          <div class="detail-top"><button class="round-btn" data-go="settings"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><h2>Temas</h2></div>
+          <p class="settings-hint">Escolha uma experiência completa. Cada tema muda a estrutura visual, espaçamento, fundo e sensação do app.</p>
+          <div id="themeGrid" class="theme-grid"></div>
+
+          <div class="theme-customizer">
+            <div class="settings-title">Cores do sistema</div>
+            <div class="color-grid">
+              <label class="color-row"><span>Botões</span><input id="buttonColorPicker" type="color" value="#f3f3f4"></label>
+              <label class="color-row"><span>Textos</span><input id="textColorPicker" type="color" value="#f3f3f4"></label>
+              <label class="color-row"><span>Palavras do sistema</span><input id="systemColorPicker" type="color" value="#b44cff"></label>
+              <label class="color-row"><span>Ícones</span><input id="iconColorPicker" type="color" value="#b44cff"></label>
+              <label class="color-row"><span>Destaque</span><input id="accentColorPicker" type="color" value="#b44cff"></label>
+            </div>
+
+            <div class="settings-title">Assinatura GitFusion</div>
+            <div class="settings-list-spaced theme-controls">
+              <button id="themeStarsToggle" class="settings-row settings-card-row icon-toggle" data-pref="stars"><svg viewBox="0 0 24 24"><path d="M12 2l2.4 6.8L22 12l-7.6 3.2L12 22l-2.4-6.8L2 12l7.6-3.2z"/></svg><span>Estrelas em movimento<small>Característica visual do chat GitFusion.</small></span><b class="toggle-icon"></b></button>
+              <label class="settings-row settings-card-row range-row"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></svg><span>Velocidade das estrelas<small>Controla o movimento do fundo espacial.</small></span><input id="starSpeedRange" type="range" min="8" max="40" value="18"></label>
+              <label class="settings-row settings-card-row range-row"><svg viewBox="0 0 24 24"><path d="M4 12h16M4 18h10M4 6h12"/></svg><span>Intensidade do glow<small>Controla a força do brilho roxo.</small></span><input id="glowRange" type="range" min="0" max="100" value="60"></label>
+            </div>
+
+            <div class="settings-title">Leitura inteligente</div>
+            <div class="settings-list-spaced theme-controls">
+              <button id="keywordHighlightToggle" class="settings-row settings-card-row icon-toggle" data-pref="keywords"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h9M4 18h16"/></svg><span>Textos grafados por palavras-chave<small>Destaca comandos, arquivos, repositórios e termos importantes.</small></span><b class="toggle-icon"></b></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="personalization" class="page profile-page detail-page">
+        <div class="profile-wrap detail-wrap">
+          <div class="detail-top"><button class="round-btn" data-go="settings"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><h2>Personalização</h2></div>
+          <div class="profile-editor">
+            <div id="profilePhotoPreview" class="profile-photo-preview">TS</div>
+            <div class="profile-editor-fields">
+              <label>Nome do perfil</label>
+              <input id="profileNameInput" placeholder="Seu nome">
+              <div class="row tight-row">
+                <button id="chooseProfilePhoto" class="ghost">Adicionar foto</button>
+                <button id="removeProfilePhoto" class="ghost danger-soft">Retirar foto</button>
+                <button id="saveProfile" class="primary">Salvar perfil</button>
+              </div>
+            </div>
+            <input id="profilePhotoPicker" type="file" accept="image/*" hidden>
+          </div>
+          <div class="settings-list-spaced">
+            <button id="motionToggleBtn" class="settings-row settings-card-row icon-toggle" data-pref="motion"><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/></svg><span>Fundo com estrelas em movimento<small>Visível somente nesta tela de Personalização.</small></span><b class="toggle-icon"></b></button>
+            <button id="compactToggleBtn" class="settings-row settings-card-row icon-toggle" data-pref="compact"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/></svg><span>Modo compacto<small>Reduz respiro dos cards de projeto.</small></span><b class="toggle-icon"></b></button>
+            <label class="settings-row settings-card-row range-row"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></svg><span>Brilho roxo<small>Controla o realce visual do GitFusion.</small></span><input id="accentRange" type="range" min="0" max="100" value="60"></label>
+          </div>
+        </div>
+      </section>
+      <section id="wiki" class="page wiki-page obsidian-wiki-page">
+        <div class="wiki-shell">
+          <aside class="wiki-rail">
+            <div class="wiki-rail-head">
+              <div>
+                <h2>Wiki</h2>
+                <p>Base local do projeto</p>
+              </div>
+              <button id="newWikiPage" class="round-btn tiny" title="Nova página">
+                <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+              </button>
+            </div>
+            <select id="wikiProjectSelect" class="wiki-project-select"><option value="">Selecione um projeto</option></select>
+            <div class="wiki-search-box">
+              <svg viewBox="0 0 24 24"><path d="m21 21-4.3-4.3M10 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16z"/></svg>
+              <input id="wikiSearch" placeholder="Buscar notas...">
+              <button id="wikiSearchBtn" title="Buscar">↵</button>
+            </div>
+            <button id="generateWiki" class="wiki-generate-btn">
+              <svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M3 12h3M18 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>
+              Gerar wiki do projeto
+            </button>
+            <div class="wiki-panel-title">Páginas</div>
+            <div id="wikiPagesList" class="wiki-pages-list obsidian-pages"><p class="status">Nenhum projeto selecionado.</p></div>
+            <div id="wikiSearchResults" class="wiki-results obsidian-results"></div>
+          </aside>
+
+          <section class="wiki-main-note">
+            <div class="wiki-note-head">
+              <input id="wikiPageTitle" placeholder="Título da página">
+              <div class="wiki-note-actions">
+                <button id="saveWikiPage" class="ghost compact">Salvar</button>
+                <button id="deleteWikiPage" class="ghost compact danger">Excluir</button>
+              </div>
+            </div>
+            <div class="wiki-note-body">
+              <textarea id="wikiPageEditor" class="wiki-editor obsidian-editor" placeholder="# Título&#10;&#10;Use [[Links internos]] e #tags para conectar ideias."></textarea>
+              <div class="wiki-preview-card obsidian-preview-card">
+                <div class="mini-label">Preview</div>
+                <div id="wikiPreview" class="wiki-preview obsidian-preview"></div>
+              </div>
+            </div>
+          </section>
+
+          <aside class="wiki-context">
+            <div class="context-card">
+              <div class="mini-label">Backlinks</div>
+              <div id="wikiBacklinks" class="wiki-backlinks"><p class="status">Abra uma página.</p></div>
+            </div>
+            <div class="context-card">
+              <div class="mini-label">Grafo</div>
+              <div id="wikiGraph" class="wiki-graph"><span class="graph-node active">Wiki</span></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+
+
+      <section id="learning" class="page learning-page obsidian-learning-page">
+        <div class="learning-shell">
+          <aside class="learning-rail">
+            <div class="wiki-rail-head">
+              <div>
+                <h2>Aprendizado</h2>
+                <p>Professor do código</p>
+              </div>
+              <button id="refreshLearning" class="round-btn tiny" title="Atualizar">
+                <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2-5.3M20 4v6h-6"/></svg>
+              </button>
+            </div>
+            <div class="learning-add-card">
+              <label>Link GitHub ou projeto salvo</label>
+              <textarea id="learningInput" rows="3" placeholder="https://github.com/user/repositorio
+Ou escolha um projeto mesclado abaixo"></textarea>
+              <div class="row tight-row">
+                <button id="addLearningRepo" class="primary">Aprender repo</button>
+                <button id="addLearningProject" class="ghost">Usar projeto criado</button>
+              </div>
+              <select id="learningProjectSelect"><option value="">Selecionar projeto mesclado</option></select>
+            </div>
+            <div class="wiki-panel-title">Fontes</div>
+            <div id="learningSources" class="learning-sources"><p class="status">Nenhuma fonte ainda.</p></div>
+          </aside>
+
+          <section class="learning-tree-card">
+            <div class="wiki-note-head compact-head">
+              <input id="learningSourceTitle" disabled placeholder="Selecione uma fonte">
+            </div>
+            <div id="learningTree" class="learning-tree"><p class="status">Adicione um repositório ou projeto para estudar.</p></div>
+          </section>
+
+          <section class="learning-teacher-card">
+            <div class="learning-teacher-head">
+              <div>
+                <span class="mini-label">Aula do arquivo</span>
+                <h3 id="learningFileTitle">Nenhum arquivo aberto</h3>
+              </div>
+              <button id="explainLearningFile" class="ghost compact">Explicar</button>
+            </div>
+            <div class="learning-teacher-body">
+              <pre id="learningCode" class="learning-code">Abra um arquivo da árvore para ver o código aqui.</pre>
+              <article id="learningExplanation" class="learning-explanation"><p class="status">Quando abrir um arquivo, toque em “Explicar” para o GitFusion agir como professor e ensinar cada parte.</p></article>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section id="rag" class="page rag-page">
+        <div class="page-head"><h2>Busca local</h2><p>RAG offline para arquivos, memória e wiki. O chat usa esse contexto quando responde.</p></div>
+        <div class="rag-shell">
+          <div class="rag-card rag-status-card">
+            <div>
+              <strong>Índice local</strong>
+              <small id="ragStatusText">Ainda não carregado.</small>
+            </div>
+            <button id="rebuildRag" class="primary small-primary">Recriar índice</button>
+          </div>
+          <div class="rag-card">
+            <label>Pesquisar no conhecimento local</label>
+            <div class="rag-search-row">
+              <input id="ragQuery" placeholder="Ex: arquitetura, login, package.json, decisões...">
+              <button id="ragSearchBtn" class="ghost">Buscar</button>
+            </div>
+          </div>
+          <div id="ragResults" class="rag-results"><p class="status">Recrie o índice para buscar em projetos, Wiki e Memória.</p></div>
+        </div>
+      </section>
+
+      <section id="memory" class="page profile-page detail-page">
+        <div class="profile-wrap detail-wrap">
+          <div class="detail-top"><button class="round-btn" data-go="settings"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><h2>Memória do projeto</h2></div>
+          <div class="form-card slim functional-card">
+            <p>Memória local usada pelo GitFusion Core nas conversas e fusões.</p>
+            <textarea id="memoryInput" class="big-textarea" placeholder="Ex: sempre preservar o projeto base, separar integrações em módulos..."></textarea>
+            <div class="row"><button id="loadMemory" class="ghost">Carregar memória</button><button id="saveMemory" class="primary">Salvar memória</button><button id="exportDataset" class="ghost">Exportar dataset</button></div>
+            <div id="memoryStatus" class="status">Pronto.</div>
+          </div>
+
+          <div class="form-card slim functional-card knowledge-import-card">
+            <div class="settings-title">Base local do APK</div>
+            <p>Importe arquivos, pastas, docs e código para o GitFusion consultar offline pelo MemPalace/RAG. Isso fica salvo no próprio aparelho.</p>
+            <input id="knowledgeFilePicker" type="file" multiple webkitdirectory directory hidden>
+            <input id="knowledgeBackupPicker" type="file" accept="application/json,.json" hidden>
+            <div class="row tight-row">
+              <button id="chooseKnowledgeFiles" class="primary" type="button">Importar pasta/arquivos</button>
+              <button id="exportKnowledgeBase" class="ghost" type="button">Exportar base</button>
+              <button id="importKnowledgeBackup" class="ghost" type="button">Restaurar base</button>
+            </div>
+            <div class="rag-search-row">
+              <input id="knowledgeSearchInput" placeholder="Buscar na base local offline...">
+              <button id="knowledgeSearchBtn" class="ghost" type="button">Buscar</button>
+            </div>
+            <div class="row tight-row"><button id="refreshKnowledgeStats" class="ghost" type="button">Atualizar status</button><button id="clearKnowledgeBase" class="ghost danger" type="button">Limpar base local</button></div>
+            <div id="knowledgeStatus" class="status">Base local ainda não lida.</div>
+            <div id="knowledgeResults" class="rag-results"><p class="status">Importe arquivos para criar o índice offline.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="workspaceSettings" class="page profile-page detail-page">
+        <div class="profile-wrap detail-wrap">
+          <div class="detail-top"><button class="round-btn" data-go="settings"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><h2>Espaço de trabalho</h2></div>
+          <div class="workspace-summary" id="workspaceSummary">
+            <div><strong id="workspaceProjectCount">0</strong><small>Projetos mesclados</small></div>
+            <div><strong id="workspaceJobCount">0</strong><small>Jobs locais</small></div>
+            <div><strong id="workspaceSize">0 KB</strong><small>Uso local</small></div>
+          </div>
+          <div class="form-card slim functional-card workspace-form">
+            <label>Espaço ativo</label>
+            <input id="workspaceName" placeholder="Pessoal">
+            <label>Pasta local</label>
+            <input id="workspacePath" disabled value="workspaces/">
+            <div class="row tight-row">
+              <button id="saveWorkspace" class="primary">Salvar espaço</button>
+              <button id="refreshWorkspace" class="ghost">Atualizar status</button>
+            </div>
+          </div>
+          <div class="form-card slim functional-card workspace-form">
+            <label>Criar novo espaço</label>
+            <div class="rag-search-row">
+              <input id="newWorkspaceName" placeholder="Ex: Projeto Caos, Cliente X, Estudos">
+              <button id="createWorkspace" class="ghost">Criar</button>
+            </div>
+            <div id="workspaceList" class="workspace-list"><p class="status">Carregando espaços...</p></div>
+          </div>
+          <div class="settings-list-spaced">
+            <button id="refreshProjects" class="settings-row settings-card-row"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2-5.3M20 4v6h-6"/></svg><span>Atualizar projetos salvos<small>Recarrega a biblioteca de mesclados.</small></span></button>
+            <button id="openWorkspaceLibrary" class="settings-row settings-card-row"><svg viewBox="0 0 24 24"><path d="M3 7h7l2 2h9v9H3z"/></svg><span>Abrir mesclados<small>Mostra as pastas geradas pelo GitFusion.</small></span></button>
+            <button id="cleanWorkspaceTmp" class="settings-row settings-card-row danger"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13"/></svg><span>Limpar temporários<small>Mantém projetos finais e remove lixo de jobs incompletos.</small></span></button>
+          </div>
+        </div>
+      </section>
+
+      <div id="composer" class="composer">
+        <div id="attachmentPreview" class="attachment-preview hidden"></div>
+        <div class="composer-row">
+          <button id="plusBtn" class="circle" aria-label="ferramentas"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+          <textarea id="mainInput" rows="1" placeholder="Cole links de repositórios ou envie mensagem"></textarea>
+          <button id="micBtn" class="circle" aria-label="microfone"><svg viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/></svg></button>
+          <button id="sendBtn" class="send" aria-label="enviar"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+        </div>
+        <div id="toolsMenu" class="tools-menu hidden">
+          <button id="attachFile"><svg viewBox="0 0 24 24"><path d="M21 12.5 12 21a6 6 0 0 1-8.5-8.5L13 3a4 4 0 0 1 5.5 5.5L9 18a2 2 0 1 1-3-3l9-9"/></svg>Anexar arquivo</button>
+          <button id="openTerminalTool"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM7 9l3 3-3 3M12 15h5"/></svg>Terminal</button>
+          <button id="analyzeBtn"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/></svg>Analisar links</button>
+          <button id="fuseBtn"><svg viewBox="0 0 24 24"><path d="M6 7h6v6H6zM12 11h6v6h-6z"/></svg>Gerar repositório</button>
+          <button id="openLibrary"><svg viewBox="0 0 24 24"><path d="M3 7h7l2 2h9v9H3z"/></svg>Ver mesclados</button>
+        </div>
+        <input id="filePicker" type="file" multiple hidden>
       </div>
-      <p>Rodar local: <code>npm install && npm start</code></p>
-      <p>Docker: <code>docker compose up --build</code></p>
-      <p>Termux: rode o servidor e abra <code>http://127.0.0.1:3737</code></p>
     </section>
   </main>
 
+  <div id="previewPanel" class="preview-panel hidden" aria-label="Preview do projeto">
+    <div class="preview-titlebar">
+      <div class="preview-left">
+        <button id="previewClose" class="round-mini" aria-label="fechar preview"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+        <div><strong>Preview local</strong><small id="previewProjectName">Nenhum projeto aberto</small></div>
+      </div>
+      <div class="preview-actions">
+        <button id="previewRefresh" class="round-mini" aria-label="atualizar preview"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2-5.3M20 4v6h-6"/></svg></button>
+        <button id="previewOpenFiles" class="round-mini" aria-label="abrir arquivos"><svg viewBox="0 0 24 24"><path d="M3 7h7l2 2h9v9H3z"/></svg></button>
+      </div>
+    </div>
+    <div id="previewBody" class="preview-body">
+      <div class="preview-empty">
+        <strong>Preview aguardando projeto mesclado</strong>
+        <span>Mescle um projeto e toque no play para visualizar.</span>
+      </div>
+    </div>
+  </div>
+  <div id="floatingTerminal" class="floating-terminal hidden" aria-label="Terminal flutuante">
+    <div id="terminalDragHandle" class="terminal-titlebar">
+      <div class="terminal-title-left">
+        <span class="terminal-led"></span>
+        <strong>Terminal</strong>
+        <small id="terminalCwd">workspace ativo</small>
+      </div>
+      <div class="terminal-actions">
+        <button id="terminalMinimize" title="Minimizar"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        <button id="terminalExpand" title="Expandir"><svg viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5"/></svg></button>
+        <button id="terminalClear" title="Limpar"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13"/></svg></button>
+        <button id="terminalClose" title="Fechar"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      </div>
+    </div>
+    <div id="terminalOutput" class="terminal-output"><div class="term-line info">Terminal pronto. Comandos precisam de autorização antes de executar.</div></div>
+    <form id="terminalForm" class="terminal-form">
+      <input id="terminalInput" autocomplete="off" placeholder="Ex: ls, pwd, npm test...">
+      <button type="submit">Executar</button>
+    </form>
+  </div>
+  <div id="toast" class="toast"></div>
   <script src="/config.js"></script>
+  <script src="/apk-ai-runtime.js"></script>
+  <script src="/apk-bootstrap.js"></script>
+  <script src="/apk-model-packs.js"></script>
+  <script src="/apk-autotrainer.js"></script>
   <script src="/app.js"></script>
 </body>
 </html>

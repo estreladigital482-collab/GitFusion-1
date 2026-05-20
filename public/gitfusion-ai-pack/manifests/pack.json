@@ -1,0 +1,30 @@
+{
+  "name": "GitFusion AI Pack",
+  "version": "0.1.0",
+  "models": [
+    {
+      "id": "tinyllama",
+      "name": "TinyLlama GGUF",
+      "type": "gguf",
+      "path": "models/tinyllama.gguf"
+    },
+    {
+      "id": "qwen-coder",
+      "name": "Qwen Coder GGUF",
+      "type": "gguf",
+      "path": "models/qwen-coder.gguf"
+    },
+    {
+      "id": "deepseek-coder",
+      "name": "DeepSeek Coder GGUF",
+      "type": "gguf",
+      "path": "models/deepseek-coder.gguf"
+    }
+  ],
+  "docs": [
+    "docs/javascript.md",
+    "docs/nodejs.md",
+    "docs/git.md",
+    "docs/android-apk.md"
+  ]
+}

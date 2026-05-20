@@ -1,0 +1,62 @@
+{
+  "version": "14.2",
+  "defaultStrategy": "auto",
+  "runtimes": {
+    "ollama": {
+      "enabled": true,
+      "baseUrl": "http://127.0.0.1:11434",
+      "healthPath": "/api/tags",
+      "generatePath": "/api/generate"
+    },
+    "llamacpp": {
+      "enabled": false,
+      "baseUrl": "http://127.0.0.1:8080",
+      "healthPath": "/health",
+      "generatePath": "/completion"
+    }
+  },
+  "models": [
+    {
+      "id": "qwen-coder-small",
+      "name": "Qwen Coder Small",
+      "provider": "ollama",
+      "ollamaNames": ["qwen2.5-coder:1.5b", "qwen2.5-coder:3b", "qwen2.5-coder:7b"],
+      "roles": ["code", "planner", "reviewer"],
+      "deviceTier": "mobile-medium",
+      "notes": "Primeira escolha para programação local quando disponível."
+    },
+    {
+      "id": "deepseek-coder-small",
+      "name": "DeepSeek Coder Small",
+      "provider": "ollama",
+      "ollamaNames": ["deepseek-coder:1.3b", "deepseek-coder:6.7b"],
+      "roles": ["code", "reviewer"],
+      "deviceTier": "mobile-medium",
+      "notes": "Bom para análise e geração de código quando o aparelho suporta."
+    },
+    {
+      "id": "codellama-small",
+      "name": "CodeLlama Small",
+      "provider": "ollama",
+      "ollamaNames": ["codellama:7b", "codellama:7b-code"],
+      "roles": ["code", "explain"],
+      "deviceTier": "mobile-strong",
+      "notes": "Fallback de código quando instalado localmente."
+    },
+    {
+      "id": "tinyllama-test",
+      "name": "TinyLlama Test",
+      "provider": "ollama",
+      "ollamaNames": ["tinyllama:1.1b"],
+      "roles": ["explain", "draft", "offline"],
+      "deviceTier": "mobile-light",
+      "notes": "Modelo leve para teste, explicações simples e aparelhos fracos."
+    }
+  ],
+  "routerRules": [
+    { "when": "task.includes('code') || task.includes('merge') || task.includes('repo')", "preferRole": "code" },
+    { "when": "task.includes('explain') || task.includes('learn')", "preferRole": "explain" },
+    { "when": "task.includes('review') || task.includes('fix')", "preferRole": "reviewer" },
+    { "when": "default", "preferRole": "planner" }
+  ]
+}

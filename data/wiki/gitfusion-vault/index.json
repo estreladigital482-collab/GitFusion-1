@@ -1,0 +1,65 @@
+{
+  "projectId": "gitfusion-vault",
+  "title": "Wiki do projeto",
+  "createdAt": "2026-05-18T20:36:30.445Z",
+  "updatedAt": "2026-05-18T20:36:30.600Z",
+  "pages": [
+    {
+      "slug": "home",
+      "title": "GitFusion Wiki",
+      "updatedAt": "2026-05-18T20:36:30.528Z"
+    },
+    {
+      "slug": "arquitetura",
+      "title": "Arquitetura",
+      "updatedAt": "2026-05-18T20:36:30.550Z"
+    },
+    {
+      "slug": "decisoes",
+      "title": "Decisões",
+      "updatedAt": "2026-05-18T20:36:30.567Z"
+    },
+    {
+      "slug": "repositorios",
+      "title": "Repositórios",
+      "updatedAt": "2026-05-18T20:36:30.580Z"
+    },
+    {
+      "slug": "memoria",
+      "title": "Memória",
+      "updatedAt": "2026-05-18T20:36:30.596Z"
+    }
+  ],
+  "history": [
+    {
+      "at": "2026-05-18T20:36:30.599Z",
+      "type": "page:save",
+      "slug": "memoria",
+      "message": "Página salva: Memória"
+    },
+    {
+      "at": "2026-05-18T20:36:30.583Z",
+      "type": "page:save",
+      "slug": "repositorios",
+      "message": "Página salva: Repositórios"
+    },
+    {
+      "at": "2026-05-18T20:36:30.569Z",
+      "type": "page:save",
+      "slug": "decisoes",
+      "message": "Página salva: Decisões"
+    },
+    {
+      "at": "2026-05-18T20:36:30.552Z",
+      "type": "page:save",
+      "slug": "arquitetura",
+      "message": "Página salva: Arquitetura"
+    },
+    {
+      "at": "2026-05-18T20:36:30.531Z",
+      "type": "page:save",
+      "slug": "home",
+      "message": "Página salva: GitFusion Wiki"
+    }
+  ]
+}
